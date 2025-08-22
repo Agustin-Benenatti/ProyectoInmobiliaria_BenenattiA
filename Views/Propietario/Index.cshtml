@@ -1,0 +1,47 @@
+@model IEnumerable<ProyectoInmobiliaria.Models.Propietario>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0"> Lista de Propietarios</h2>
+        <a asp-action="Crear" class="btn btn-success">
+            Nuevo Propietario
+        </a>
+    </div>
+
+    <table class="table table-striped table-hover table-bordered shadow-sm rounded">
+        <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.Nombre</td>
+                <td>@p.Apellido</td>
+                <td>@p.Email</td>
+                <td>@p.Telefono</td>
+                <td class="text-center">
+                    <a asp-action="Detalle" asp-route-id="@p.PropietarioId" class="btn btn-sm btn-info text-white me-1">
+                         Ver
+                    </a>
+                    <a asp-action="Editar" asp-route-id="@p.PropietarioId" class="btn btn-sm btn-warning text-dark me-1">
+                         Editar
+                    </a>
+                    <a asp-action="Eliminar" asp-route-id="@p.PropietarioId" class="btn btn-sm btn-danger">
+                         Eliminar
+                    </a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+
+

@@ -1,0 +1,50 @@
+@model ProyectoInmobiliaria.Models.Propietario
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="mb-0">Eliminar Propietario</h3>
+                </div>
+                <div class="card-body p-4">
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item"><b>Nombre:</b> @Model.Nombre @Model.Apellido</li>
+                        <li class="list-group-item"><b>Email:</b> @Model.Email</li>
+                        <li class="list-group-item"><b>Teléfono:</b> @Model.Telefono</li>
+                    </ul>
+
+                    <div class="d-flex justify-content-end">
+                        <a asp-action="Index" class="btn btn-secondary me-2">Cancelar</a>
+                        <!-- Botón que abre el modal -->
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmModalLabel">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que querés eliminar este propietario?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form asp-action="EliminarConfirmado" method="post">
+                    <input type="hidden" name="id" value="@Model.PropietarioId" />
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

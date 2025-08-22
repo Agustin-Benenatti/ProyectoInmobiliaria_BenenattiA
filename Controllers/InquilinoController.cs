@@ -61,12 +61,12 @@ namespace ProyectoInmobiliaria.Controllers
         public IActionResult Editar(int id)
         {
             var repo = new RepositorioInquilino(_configuration);
-            var InquilinoRepositorioInquilino = repo.ObtenerPorId(id);
+            var Inquilino = repo.ObtenerPorId(id);
 
-            if (InquilinoRepositorioInquilino == null)
+            if (Inquilino == null)
                 return NotFound();
 
-            return View(InquilinoRepositorioInquilino);
+            return View(Inquilino);
         }
 
         // POST: Inquilino/Editar
@@ -87,12 +87,12 @@ namespace ProyectoInmobiliaria.Controllers
         public IActionResult Eliminar(int id)
         {
             var repo = new RepositorioInquilino(_configuration);
-            var InquilinoRepositorioInquilino = repo.ObtenerPorId(id);
+            var Inquilino = repo.ObtenerPorId(id);
 
-            if (InquilinoRepositorioInquilino == null)
+            if (Inquilino == null)
                 return NotFound();
 
-            return View(InquilinoRepositorioInquilino);
+            return View(Inquilino);
         }
 
         // POST: Inquilino/EliminarConfirmado

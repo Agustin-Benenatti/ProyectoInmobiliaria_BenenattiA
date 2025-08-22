@@ -1,0 +1,36 @@
+@model ProyectoInmobiliaria.Models.Inquilino
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-header bg-dark text-white text-center">
+                    <h3 class="mb-0">Detalle del Inquilino</h3>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <strong>ID:</strong> @Model.InquilinoId
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Nombre:</strong> @Model.Nombre
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Apellido:</strong> @Model.Apellido
+                    </li>
+                    <li class="list-group-item">
+                        <strong>DNI:</strong> @Model.Dni
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Email:</strong> @Model.Email
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Teléfono:</strong> @Model.Telefono
+                    </li>
+                </ul>
+                <div class="card-footer text-end">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

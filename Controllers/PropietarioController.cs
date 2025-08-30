@@ -9,27 +9,25 @@ namespace ProyectoInmobiliaria.Controllers
 {
     public class PropietarioController : Controller
     {
-        private readonly IConfiguration _configuration;
+        private readonly IRepositorioPropietario _repo;
 
-        public PropietarioController(IConfiguration configuration)
+        
+        public PropietarioController(IRepositorioPropietario repo)
         {
-            _configuration = configuration;
+            _repo = repo;
         }
 
         // GET: Propietario
         public IActionResult Index()
         {
-            var repo = new RepositorioPropietario(_configuration);
-            var lista = repo.ObtenerTodos();
+            var lista = _repo.ObtenerTodos();
             return View(lista);
         }
 
         // GET: Propietario/Detalle/5
         public IActionResult Detalle(int id)
         {
-            var repo = new RepositorioPropietario(_configuration);
-            var propietario = repo.ObtenerPorId(id);
-
+            var propietario = _repo.ObtenerPorId(id);
             if (propietario == null)
                 return NotFound("No se encontró el propietario.");
 
@@ -50,9 +48,7 @@ namespace ProyectoInmobiliaria.Controllers
             if (!ModelState.IsValid)
                 return View(p);
 
-            var repo = new RepositorioPropietario(_configuration);
-            repo.Alta(p);
-
+            _repo.Alta(p);
             return RedirectToAction("Index");
         }
 
@@ -60,9 +56,7 @@ namespace ProyectoInmobiliaria.Controllers
         [HttpGet]
         public IActionResult Editar(int id)
         {
-            var repo = new RepositorioPropietario(_configuration);
-            var propietario = repo.ObtenerPorId(id);
-
+            var propietario = _repo.ObtenerPorId(id);
             if (propietario == null)
                 return NotFound();
 
@@ -76,9 +70,7 @@ namespace ProyectoInmobiliaria.Controllers
             if (!ModelState.IsValid)
                 return View(p);
 
-            var repo = new RepositorioPropietario(_configuration);
-            repo.Modificacion(p);
-
+            _repo.Modificacion(p);
             return RedirectToAction("Index");
         }
 
@@ -86,9 +78,7 @@ namespace ProyectoInmobiliaria.Controllers
         [HttpGet]
         public IActionResult Eliminar(int id)
         {
-            var repo = new RepositorioPropietario(_configuration);
-            var propietario = repo.ObtenerPorId(id);
-
+            var propietario = _repo.ObtenerPorId(id);
             if (propietario == null)
                 return NotFound();
 
@@ -99,9 +89,7 @@ namespace ProyectoInmobiliaria.Controllers
         [HttpPost, ActionName("EliminarConfirmado")]
         public IActionResult EliminarConfirmado(int id)
         {
-            var repo = new RepositorioPropietario(_configuration);
-            repo.Baja(id);
-
+            _repo.Baja(id);
             return RedirectToAction("Index");
         }
     }

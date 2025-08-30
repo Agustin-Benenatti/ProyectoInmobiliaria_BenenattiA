@@ -9,31 +9,30 @@ namespace ProyectoInmobiliaria.Controllers
 {
     public class InquilinoController : Controller
     {
-        private readonly IConfiguration _configuration;
+        private readonly IRepositorioInquilino _repo;
 
-        public InquilinoController(IConfiguration configuration)
+        
+        public InquilinoController(IRepositorioInquilino repo)
         {
-            _configuration = configuration;
+            _repo = repo;
         }
 
-         // GET: InquilinoRepositorioInquilino
+        // GET: Inquilino
         public IActionResult Index()
         {
-            var repo = new RepositorioInquilino(_configuration);
-            var lista = repo.ObtenerTodos();
+            var lista = _repo.ObtenerTodos();
             return View(lista);
         }
 
         // GET: Inquilino/Detalle/5
         public IActionResult Detalle(int id)
         {
-            var repo = new RepositorioInquilino(_configuration);
-            var Inquilino = repo.ObtenerPorId(id);
+            var inquilino = _repo.ObtenerPorId(id);
 
-            if (Inquilino == null)
+            if (inquilino == null)
                 return NotFound("No se encontró el Inquilino.");
 
-            return View(Inquilino);
+            return View(inquilino);
         }
 
         // GET: Inquilino/Crear
@@ -50,8 +49,7 @@ namespace ProyectoInmobiliaria.Controllers
             if (!ModelState.IsValid)
                 return View(i);
 
-            var repo = new RepositorioInquilino(_configuration);
-            repo.Alta(i);
+            _repo.Alta(i);
 
             return RedirectToAction("Index");
         }
@@ -60,13 +58,12 @@ namespace ProyectoInmobiliaria.Controllers
         [HttpGet]
         public IActionResult Editar(int id)
         {
-            var repo = new RepositorioInquilino(_configuration);
-            var Inquilino = repo.ObtenerPorId(id);
+            var inquilino = _repo.ObtenerPorId(id);
 
-            if (Inquilino == null)
+            if (inquilino == null)
                 return NotFound();
 
-            return View(Inquilino);
+            return View(inquilino);
         }
 
         // POST: Inquilino/Editar
@@ -76,8 +73,7 @@ namespace ProyectoInmobiliaria.Controllers
             if (!ModelState.IsValid)
                 return View(i);
 
-            var repo = new RepositorioInquilino(_configuration);
-            repo.Modificacion(i);
+            _repo.Modificacion(i);
 
             return RedirectToAction("Index");
         }
@@ -86,21 +82,19 @@ namespace ProyectoInmobiliaria.Controllers
         [HttpGet]
         public IActionResult Eliminar(int id)
         {
-            var repo = new RepositorioInquilino(_configuration);
-            var Inquilino = repo.ObtenerPorId(id);
+            var inquilino = _repo.ObtenerPorId(id);
 
-            if (Inquilino == null)
+            if (inquilino == null)
                 return NotFound();
 
-            return View(Inquilino);
+            return View(inquilino);
         }
 
         // POST: Inquilino/EliminarConfirmado
         [HttpPost, ActionName("EliminarConfirmado")]
         public IActionResult EliminarConfirmado(int id)
         {
-            var repo = new RepositorioInquilino(_configuration);
-            repo.Baja(id);
+            _repo.Baja(id);
 
             return RedirectToAction("Index");
         }

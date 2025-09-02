@@ -1,0 +1,84 @@
+@model ProyectoInmobiliaria.Models.Inmueble
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="mb-0">Crear Nuevo Inmueble</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Crear" method="post">
+                        <div class="mb-3">
+                            <label asp-for="Direccion" class="form-label fw-bold"></label>
+                            <input asp-for="Direccion" class="form-control" placeholder="Ingrese la dirección" />
+                            <span asp-validation-for="Direccion" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TipoInmueble" class="form-label fw-bold">Tipo</label>
+                            <input asp-for="TipoInmueble" class="form-control" placeholder="Ej: Casa, Departamento..." />
+                            <span asp-validation-for="TipoInmueble" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Estado" class="form-label fw-bold"></label>
+                            <select asp-for="Estado" class="form-select">
+                                <option value="">Seleccione el estado</option>
+                                <option value="Disponible">Disponible</option>
+                                <option value="Alquilado">Alquilado</option>
+                                <option value="Reservado">Reservado</option>
+                            </select>
+                            <span asp-validation-for="Estado" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Ambientes" class="form-label fw-bold"></label>
+                            <input asp-for="Ambientes" class="form-control" placeholder="Cantidad de ambientes" min="1" />
+                            <span asp-validation-for="Ambientes" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Superficie" class="form-label fw-bold"></label>
+                            <input asp-for="Superficie" class="form-control" placeholder="Metros cuadrados" min="1" />
+                            <span asp-validation-for="Superficie" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Longitud" class="form-label fw-bold"></label>
+                            <input asp-for="Longitud" class="form-control" placeholder="Ingrese la longitud" />
+                            <span asp-validation-for="Longitud" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Latitud" class="form-label fw-bold"></label>
+                            <input asp-for="Latitud" class="form-control" placeholder="Ingrese la latitud" />
+                            <span asp-validation-for="Latitud" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Precio" class="form-label fw-bold"></label>
+                            <input asp-for="Precio" class="form-control" placeholder="Ingrese el precio" />
+                            <span asp-validation-for="Precio" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PropietarioId" class="form-label fw-bold">Propietario</label>
+                            <select asp-for="PropietarioId" class="form-select" asp-items="ViewBag.Propietarios">
+                                <option value="">Seleccione un propietario</option>
+                            </select>
+                            <span asp-validation-for="PropietarioId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <a asp-action="Index" class="btn btn-secondary me-2">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

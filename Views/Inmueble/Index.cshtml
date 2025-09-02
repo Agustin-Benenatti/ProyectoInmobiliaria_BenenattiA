@@ -1,0 +1,48 @@
+@model IEnumerable<ProyectoInmobiliaria.Models.Inmueble>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Lista de Inmuebles</h2>
+        <a asp-action="Crear" class="btn btn-success">
+            Nuevo Inmueble
+        </a>
+    </div>
+
+    <table class="table table-striped table-hover table-bordered shadow-sm rounded">
+        <thead class="table-dark">
+            <tr>
+                <th>Dirección</th>
+                <th>Tipo</th>
+                <th>Ambientes</th>
+                <th>Superficie (m²)</th>
+                <th>Precio</th>
+                <th>Propietario</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var i in Model)
+        {
+            <tr>
+                <td>@i.Direccion</td>
+                <td>@i.TipoInmueble</td>
+                <td>@i.Ambientes</td>
+                <td>@i.Superficie</td>
+                <td>@i.Precio?.ToString("C")</td>
+                <td>@i.Propietario?.Nombre @i.Propietario?.Apellido</td>
+                <td class="text-center">
+                    <a asp-action="Detalle" asp-route-id="@i.IdInmueble" class="btn btn-sm btn-info text-white me-1">
+                        Ver
+                    </a>
+                    <a asp-action="Editar" asp-route-id="@i.IdInmueble" class="btn btn-sm btn-warning text-dark me-1">
+                        Editar
+                    </a>
+                    <a asp-action="Eliminar" asp-route-id="@i.IdInmueble" class="btn btn-sm btn-danger">
+                        Eliminar
+                    </a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

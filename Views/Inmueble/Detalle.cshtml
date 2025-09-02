@@ -1,0 +1,48 @@
+@model ProyectoInmobiliaria.Models.Inmueble
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-header bg-dark text-white text-center">
+                    <h3 class="mb-0">Detalle del Inmueble</h3>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <strong>ID:</strong> @Model.IdInmueble
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Dirección:</strong> @Model.Direccion
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Tipo:</strong> @Model.TipoInmueble
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Estado:</strong> @Model.Estado
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Ambientes:</strong> @Model.Ambientes
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Superficie (m²):</strong> @Model.Superficie
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Longitud:</strong> @Model.Longitud
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Latitud:</strong> @Model.Latitud
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Precio:</strong> @String.Format("{0:C}", Model.Precio)
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Propietario:</strong> @(Model.Propietario != null ? Model.Propietario.Nombre + " " + Model.Propietario.Apellido : "Sin asignar")
+                    </li>
+                </ul>
+                <div class="card-footer text-end">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

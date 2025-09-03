@@ -1,0 +1,65 @@
+@model ProyectoInmobiliaria.Models.Contrato
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="mb-0">Crear Nuevo Contrato</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Crear" method="post">
+                        <div class="mb-3">
+                            <label asp-for="FechaInicio" class="form-label fw-bold"></label>
+                            <input asp-for="FechaInicio" type="date" class="form-control" />
+                            <span asp-validation-for="FechaInicio" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="FechaFin" class="form-label fw-bold"></label>
+                            <input asp-for="FechaFin" type="date" class="form-control" />
+                            <span asp-validation-for="FechaFin" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Precio" class="form-label fw-bold"></label>
+                            <input asp-for="Precio" type="number" step="0.01" class="form-control" placeholder="Ingrese el precio" />
+                            <span asp-validation-for="Precio" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Estado" class="form-label fw-bold"></label>
+                            <select asp-for="Estado" class="form-select">
+                                <option value="Activo">Activo</option>
+                                <option value="Finalizado">Finalizado</option>
+                                <option value="Cancelado">Cancelado</option>
+                            </select>
+                            <span asp-validation-for="Estado" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="InquilinoId" class="form-label fw-bold">Inquilino</label>
+                            <select asp-for="InquilinoId" class="form-select" asp-items="ViewBag.Inquilinos">
+                                <option value="">Seleccione un inquilino</option>
+                            </select>
+                            <span asp-validation-for="InquilinoId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="IdInmueble" class="form-label fw-bold">Inmueble</label>
+                            <select asp-for="IdInmueble" class="form-select" asp-items="ViewBag.Inmuebles">
+                                <option value="">Seleccione un inmueble</option>
+                            </select>
+                            <span asp-validation-for="IdInmueble" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <a asp-action="Index" class="btn btn-secondary me-2">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

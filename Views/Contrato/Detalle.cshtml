@@ -1,0 +1,42 @@
+@model ProyectoInmobiliaria.Models.Contrato
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-header bg-dark text-white text-center">
+                    <h3 class="mb-0">Detalle del Contrato</h3>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <strong>ID Contrato:</strong> @Model.IdContrato
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Fecha Inicio:</strong> @Model.FechaInicio.ToString("dd/MM/yyyy")
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Fecha Fin:</strong> @Model.FechaFin.ToString("dd/MM/yyyy")
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Precio:</strong> @String.Format("{0:C}", Model.Precio)
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Estado:</strong> @Model.Estado
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Inquilino:</strong> @(Model.Inquilino != null ? Model.Inquilino.Nombre + " " + Model.Inquilino.Apellido : "Sin asignar")
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Inmueble:</strong> @(Model.Inmueble != null ? Model.Inmueble.Direccion : "Sin asignar")
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Propietario:</strong> @(Model.Inmueble?.Propietario != null ? Model.Inmueble.Propietario.Nombre + " " + Model.Inmueble.Propietario.Apellido : "Sin asignar")
+                    </li>
+                </ul>
+                <div class="card-footer text-end">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

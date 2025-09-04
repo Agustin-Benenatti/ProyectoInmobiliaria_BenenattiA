@@ -28,4 +28,28 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+
+    [Route("Home/Error/{code?}")]
+    public IActionResult Error(int? code = null)
+    {
+        var model = new ErrorViewModel();
+
+        if (code == 404)
+        {
+            model.RequestId = "404";
+            ViewBag.Mensaje = "La página que buscas no existe.";
+        }
+        else if (code == 500)
+        {
+            model.RequestId = "500";
+            ViewBag.Mensaje = "Ocurrió un error en el servidor.";
+        }
+        else
+        {
+            model.RequestId = code?.ToString() ?? "Error";
+            ViewBag.Mensaje = "Ocurrió un error inesperado.";
+        }
+
+        return View(model);
+    }
 }

@@ -8,16 +8,16 @@
                     <h3 class="mb-0">Crear Nuevo Contrato</h3>
                 </div>
                 <div class="card-body p-4">
-                    <form asp-action="Crear" method="post">
+                    <form asp-action="Crear" method="post" id="formContrato">
                         <div class="mb-3">
                             <label asp-for="FechaInicio" class="form-label fw-bold"></label>
-                            <input asp-for="FechaInicio" type="date" class="form-control" />
+                            <input asp-for="FechaInicio" type="date" class="form-control" id="fechaInicio" />
                             <span asp-validation-for="FechaInicio" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="FechaFin" class="form-label fw-bold"></label>
-                            <input asp-for="FechaFin" type="date" class="form-control" />
+                            <input asp-for="FechaFin" type="date" class="form-control" id="fechaFin" />
                             <span asp-validation-for="FechaFin" class="text-danger small"></span>
                         </div>
 
@@ -63,3 +63,44 @@
         </div>
     </div>
 </div>
+
+
+@section Scripts {
+    <script>
+        //validaciones para la fecha 
+        document.addEventListener("DOMContentLoaded", function () {
+            let fechaInicio = document.getElementById("fechaInicio");
+            let fechaFin = document.getElementById("fechaFin");
+
+            
+            let hoy = new Date().toISOString().split('T')[0]; 
+            fechaInicio.value = hoy;
+            fechaInicio.min = hoy;
+
+            
+            fechaFin.min = hoy;
+
+            
+            fechaInicio.addEventListener("change", function () {
+                let inicio = fechaInicio.value;
+                fechaFin.min = inicio;
+                if (fechaFin.value && fechaFin.value <= inicio) {
+                    fechaFin.value = ""; 
+                }
+            });
+
+            
+            document.getElementById("formContrato").addEventListener("submit", function (e) {
+                let inicio = new Date(fechaInicio.value);
+                let fin = new Date(fechaFin.value);
+
+                if (fin <= inicio) {
+                    e.preventDefault();
+                    alert("La fecha de fin debe ser posterior a la fecha de inicio.");
+                }
+            });
+        });
+    </script>
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

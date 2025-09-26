@@ -1,0 +1,53 @@
+@model IEnumerable<ProyectoInmobiliaria.Models.Inmueble>
+
+@{
+    ViewData["Title"] = "Propiedades del Propietario";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Propiedades del Propietario</h2>
+
+    <table class="table table-striped table-hover table-bordered shadow-sm rounded">
+        <thead class="table-dark">
+            <tr>
+                <th>Dirección</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Ambientes</th>
+                <th>Superficie (m²)</th>
+                <th>Precio</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var inmueble in Model)
+            {
+                <tr>
+                    <td>@inmueble.Direccion</td>
+                    <td>@inmueble.TipoInmueble</td>
+                    <td>@inmueble.Estado</td>
+                    <td>@inmueble.Ambientes</td>
+                    <td>@inmueble.Superficie</td>
+                    <td>@String.Format("{0:C}", inmueble.Precio)</td>
+                    <td class="text-center">
+                        <div class="d-grid gap-1">
+                            <a asp-action="Detalle" asp-route-id="@inmueble.IdInmueble" class="btn btn-sm btn-info text-white">
+                                Ver
+                            </a>
+                            <a asp-action="Editar" asp-route-id="@inmueble.IdInmueble" class="btn btn-sm btn-warning text-dark">
+                                Editar
+                            </a>
+                            <a asp-action="Eliminar" asp-route-id="@inmueble.IdInmueble" class="btn btn-sm btn-danger">
+                                Eliminar
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <a asp-action="Index" asp-controller="Propietario" class="btn btn-secondary mt-3">
+        Volver a Propietarios
+    </a>
+</div>

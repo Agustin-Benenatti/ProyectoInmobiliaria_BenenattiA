@@ -129,7 +129,7 @@ namespace ProyectoInmobiliaria.Controllers
         public IActionResult PorPropietario(int id)
         {
             var lista = _repo.BuscarPorPropietario(id);
-            return View("Index", lista);
+            return View("PropiedadesPorPropietario", lista);
         }
     }
 }

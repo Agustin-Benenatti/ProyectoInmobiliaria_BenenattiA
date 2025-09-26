@@ -1,8 +1,14 @@
 @model IEnumerable<ProyectoInmobiliaria.Models.Propietario>
 
+@{
+    ViewData["Title"] = "Lista de Propietarios";
+    int pagina = ViewBag.Pagina ?? 0;
+    int totalPaginas = ViewBag.TotalPaginas ?? 0;
+}
+
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0"> Lista de Propietarios</h2>
+        <h2 class="mb-0">Lista de Propietarios</h2>
         <a asp-action="Crear" class="btn btn-success">
             Nuevo Propietario
         </a>
@@ -19,29 +25,54 @@
             </tr>
         </thead>
         <tbody>
-        @foreach (var p in Model)
-        {
-            <tr>
-                <td>@p.Nombre</td>
-                <td>@p.Apellido</td>
-                <td>@p.Email</td>
-                <td>@p.Telefono</td>
-                <td class="text-center">
-                    <a asp-action="Detalle" asp-route-id="@p.PropietarioId" class="btn btn-sm btn-info text-white me-1">
-                         Ver
-                    </a>
-                    <a asp-action="Editar" asp-route-id="@p.PropietarioId" class="btn btn-sm btn-warning text-dark me-1">
-                         Editar
-                    </a>
-                    <a asp-action="Eliminar" asp-route-id="@p.PropietarioId" class="btn btn-sm btn-danger">
-                         Eliminar
-                    </a>
-                </td>
-            </tr>
-        }
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td>@p.Nombre</td>
+                    <td>@p.Apellido</td>
+                    <td>@p.Email</td>
+                    <td>@p.Telefono</td>
+                    <td class="text-center">
+                        <a asp-action="Detalle" asp-route-id="@p.PropietarioId" class="btn btn-sm btn-info text-white me-1">
+                            Ver
+                        </a>
+                        <a asp-action="Editar" asp-route-id="@p.PropietarioId" class="btn btn-sm btn-warning text-dark me-1">
+                            Editar
+                        </a>
+                        <a asp-action="Eliminar" asp-route-id="@p.PropietarioId" class="btn btn-sm btn-danger">
+                            Eliminar
+                        </a>
+                        <a asp-controller="Inmueble" asp-action="PorPropietario" asp-route-id="@p.PropietarioId" 
+                        class="btn btn-info">Ver Propiedades</a>
+
+
+                        
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
+
+    
+    @if (pagina > 0 && totalPaginas > 1)
+    {
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(pagina <= 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-pagina="@(pagina - 1)">Anterior</a>
+                </li>
+
+                @for (int i = 1; i <= totalPaginas; i++)
+                {
+                    <li class="page-item @(i == pagina ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pagina="@i">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(pagina >= totalPaginas ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-pagina="@(pagina + 1)">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    }
 </div>
-
-
-

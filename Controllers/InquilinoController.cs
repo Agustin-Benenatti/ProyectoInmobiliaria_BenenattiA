@@ -11,16 +11,34 @@ namespace ProyectoInmobiliaria.Controllers
     {
         private readonly IRepositorioInquilino _repo;
 
-        
+
         public InquilinoController(IRepositorioInquilino repo)
         {
             _repo = repo;
         }
 
         // GET: Inquilino
-        public IActionResult Index()
+        public IActionResult Index(int pagina = 1)
         {
-            var lista = _repo.ObtenerTodos();
+            int tamPag = 3;
+            IEnumerable<Inquilino> lista;
+
+            if (pagina <= 0)
+            {
+                // Sin paginación: trae todos los registros
+                lista = _repo.ObtenerTodos();
+                ViewBag.Pagina = 0;
+                ViewBag.TotalPaginas = 0;
+            }
+            else
+            {
+                // Con paginación
+                lista = _repo.ObtenerLista(pagina, tamPag);
+                int total = _repo.ObtenerCantidad();
+                ViewBag.Pagina = pagina;
+                ViewBag.TotalPaginas = (int)Math.Ceiling((double)total / tamPag);
+            }
+
             return View(lista);
         }
 
@@ -46,6 +64,7 @@ namespace ProyectoInmobiliaria.Controllers
         [HttpPost]
         public IActionResult Crear(Inquilino i)
         {
+
             if (!ModelState.IsValid)
                 return View(i);
 
@@ -98,5 +117,7 @@ namespace ProyectoInmobiliaria.Controllers
 
             return RedirectToAction("Index");
         }
+
+
     }
 }

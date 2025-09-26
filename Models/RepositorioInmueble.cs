@@ -176,7 +176,7 @@ namespace ProyectoInmobiliaria.Models
             using (var connection = GetConnection())
             {
                 connection.Open();
-                var sql = @"SELECT IdInmueble, Direccion, TipoInmueble, Estado, Superficie, Longitud, Latitud , Precio, PropietarioId
+                var sql = @"SELECT IdInmueble, Direccion, TipoInmueble, Estado, Ambientes ,Superficie, Longitud, Latitud , Precio, PropietarioId
                             FROM inmuebles
                             WHERE PropietarioId =@propietarioId";
                 using (var command = new MySqlCommand(sql, connection))

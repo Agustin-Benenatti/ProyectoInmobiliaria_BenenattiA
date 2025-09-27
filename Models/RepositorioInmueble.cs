@@ -66,7 +66,7 @@ namespace ProyectoInmobiliaria.Models
                 connection.Open();
                 var sql = @"UPDATE inmuebles
                             SET Direccion= @direccion, TipoInmueble= @tipo , Estado =@estado, Ambientes = @ambientes, Superficie = @superficie, 
-                            Longitud = @longitud, Latitud = @latitud, Precio = @precio, PropietarioId = @propietarioId
+                            Longitud = @longitud, Latitud = @latitud, Precio = @precio, PropietarioId = @propietarioId, PortadaUrl =@PortadaUrl
                             WHERE IdInmueble=@id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
@@ -80,6 +80,7 @@ namespace ProyectoInmobiliaria.Models
                     command.Parameters.AddWithValue("@latitud", i.Latitud);
                     command.Parameters.AddWithValue("@precio", i.Precio);
                     command.Parameters.AddWithValue("@propietarioId", i.PropietarioId);
+                    command.Parameters.AddWithValue("@portadaUrl", i.PortadaUrl ?? (object)DBNull.Value);
 
                     res = command.ExecuteNonQuery();
                 }
@@ -94,7 +95,7 @@ namespace ProyectoInmobiliaria.Models
     {
         connection.Open();
         var sql = @"SELECT i.IdInmueble, i.Direccion, i.TipoInmueble, i.Estado, 
-                           i.Ambientes, i.Superficie, i.Longitud, i.Latitud, i.Precio, i.PropietarioId,
+                           i.Ambientes, i.Superficie, i.Longitud, i.Latitud, i.Precio, i.PropietarioId,i.PortadaUrl,
                            p.Nombre, p.Apellido
                     FROM inmuebles i
                     INNER JOIN propietarios p ON i.PropietarioId = p.PropietarioId";
@@ -115,6 +116,7 @@ namespace ProyectoInmobiliaria.Models
                         Longitud = reader.IsDBNull(reader.GetOrdinal("Longitud")) ? 0 : reader.GetInt32("Longitud"),
                         Latitud = reader.IsDBNull(reader.GetOrdinal("Latitud")) ? 0 : reader.GetInt32("Latitud"),
                         Precio = reader.IsDBNull(reader.GetOrdinal("Precio")) ? 0 : reader.GetDecimal("Precio"),
+                        PortadaUrl = reader.IsDBNull(reader.GetOrdinal("PortadaUrl")) ? null : reader.GetString("PortadaUrl"),
                         PropietarioId = reader.GetInt32("PropietarioId"),
 
                         
@@ -140,7 +142,7 @@ namespace ProyectoInmobiliaria.Models
             using (var connection = GetConnection())
             {
                 connection.Open();
-                var sql = @"SELECT IdInmueble, Direccion, TipoInmueble, Estado, Ambientes, Superficie, Longitud, Latitud, Precio, PropietarioId
+                var sql = @"SELECT IdInmueble, Direccion, TipoInmueble, Estado, Ambientes, Superficie, Longitud, Latitud, Precio, PropietarioId,PortadaUrl
                             FROM inmuebles
                             WHERE IdInmueble=@id";
                 using (var command = new MySqlCommand(sql, connection))
@@ -161,7 +163,8 @@ namespace ProyectoInmobiliaria.Models
                                 Longitud = reader.IsDBNull(reader.GetOrdinal("Longitud")) ? 0 : reader.GetInt32("Longitud"),
                                 Latitud = reader.IsDBNull(reader.GetOrdinal("Latitud")) ? 0 : reader.GetInt32("Latitud"),
                                 Precio = reader.IsDBNull(reader.GetOrdinal("Precio")) ? 0 : reader.GetDecimal("Precio"),
-                                PropietarioId = reader.IsDBNull(reader.GetOrdinal("PropietarioId")) ? 0 : reader.GetInt32("PropietarioId")
+                                PropietarioId = reader.IsDBNull(reader.GetOrdinal("PropietarioId")) ? 0 : reader.GetInt32("PropietarioId"),
+                                PortadaUrl = reader.IsDBNull(reader.GetOrdinal("PortadaUrl")) ? null : reader.GetString("PortadaUrl")
                             };
                         }
                     }

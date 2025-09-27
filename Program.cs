@@ -10,6 +10,7 @@ builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietario>();
 builder.Services.AddScoped<IRepositorioInquilino, RepositorioInquilino>();
 builder.Services.AddScoped<IRepositorioInmueble, RepositorioInmueble>();
 builder.Services.AddScoped<IRepositorioContrato, RepositorioContrato>();
+builder.Services.AddScoped<IRepositorioImagen, RepositorioImagen>();
 
 
 var app = builder.Build();
@@ -26,6 +27,8 @@ app.UseExceptionHandler("/Home/Error/500");
 
 app.UseHttpsRedirection();
 app.UseRouting();
+
+app.UseStaticFiles();
 
 app.UseAuthorization();
 

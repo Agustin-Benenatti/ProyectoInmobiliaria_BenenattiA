@@ -46,5 +46,9 @@ namespace ProyectoInmobiliaria.Models
         [ForeignKey(nameof(PropietarioId))]
         [BindNever]
         public Propietario? Propietario { get; set; }
+
+        public string? PortadaUrl { get; set; }
+
+        public IList<ImagenModel> Imagen { get; set; } = new List<ImagenModel>();
     }
 }

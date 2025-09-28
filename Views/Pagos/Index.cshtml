@@ -1,0 +1,68 @@
+@model IEnumerable<ProyectoInmobiliaria.Models.PagosModels>
+
+@{
+    ViewData["Title"] = "Pagos";
+}
+
+<h2 class="mb-3">Pagos</h2>
+
+
+<table class="table table-striped table-hover table-bordered shadow-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>Número de Pago</th>
+            <th>Fecha de pago</th>
+            <th>Monto</th>
+            <th>Anulado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.NroPago</td>
+                    <td>@item.FechaPago.ToString("dd/MM/yyyy")</td>
+                    <td>@item.Monto.ToString("C")</td>
+                    <td>@(item.Anulado ? "Sí" : "No")</td>
+                    <td>
+                        <a asp-action="Editar" asp-route-id="@item.IdPago" class="btn btn-sm btn-primary">Editar</a>
+                        <a asp-action="Anular" asp-route-id="@item.IdPago" class="btn btn-sm btn-danger">Anular</a>
+                        <a asp-action="Detalle" asp-route-id="@item.IdPago" class="btn btn-sm btn-warning">Detalles</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" class="text-center">No hay pagos registrados.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Paginación -->
+@if (ViewBag.TotalPaginas > 1)
+{
+    <nav aria-label="Paginación">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(ViewBag.Pagina == 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.Pagina - 1)">Anterior</a>
+            </li>
+
+            @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
+            {
+                <li class="page-item @(ViewBag.Pagina == i ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-pagina="@i">@i</a>
+                </li>
+            }
+
+            <li class="page-item @(ViewBag.Pagina == ViewBag.TotalPaginas ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.Pagina + 1)">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+}

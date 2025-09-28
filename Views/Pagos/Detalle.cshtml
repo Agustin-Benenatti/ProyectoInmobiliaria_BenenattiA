@@ -1,0 +1,28 @@
+@model ProyectoInmobiliaria.Models.PagosModels
+@{
+    ViewData["Title"] = "Detalle Pago";
+}
+
+<h2>Detalle del Pago</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <p><strong>Número de Pago:</strong> @Model.NroPago</p>
+        <p><strong>Fecha de Pago:</strong> @Model.FechaPago.ToString("dd/MM/yyyy")</p>
+        <p><strong>Monto:</strong> @Model.Monto.ToString("C")</p>
+        <p><strong>Anulado:</strong> @(Model.Anulado ? "Sí" : "No")</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Datos del Contrato</div>
+    <div class="card-body">
+        <p><strong>Propietario:</strong> @ViewBag.PropietarioNombre</p>
+        <p><strong>Inquilino:</strong> @ViewBag.InquilinoNombre</p>
+        <p><strong>Fecha Inicio:</strong> @(ViewBag.Contrato != null ? ((DateOnly)ViewBag.Contrato.FechaInicio).ToDateTime(TimeOnly.MinValue).ToString("dd/MM/yyyy") : "-")</p>
+        <p><strong>Fecha Fin:</strong> @(ViewBag.Contrato != null ? ((DateOnly)ViewBag.Contrato.FechaFin).ToDateTime(TimeOnly.MinValue).ToString("dd/MM/yyyy") : "-")</p>
+        <p><strong>Monto del Contrato:</strong> @(ViewBag.Contrato != null ? ((decimal)ViewBag.Contrato.Precio).ToString("C") : "-")</p>
+    </div>
+</div>
+
+<a asp-action="Index" class="btn btn-secondary mt-3">Volver</a>

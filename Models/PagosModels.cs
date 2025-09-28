@@ -9,11 +9,15 @@ namespace ProyectoInmobiliaria.Models
     {
         public int IdPago { get; set; }
 
+        public int NroPago { get; set; }
+
         public DateOnly FechaPago { get; set; }
 
         public Decimal Monto { get; set; }
 
         public string? Detalle { get; set; }
+
+        public bool Anulado { get; set; } = false;
 
         public int IdContrato { get; set; }
         

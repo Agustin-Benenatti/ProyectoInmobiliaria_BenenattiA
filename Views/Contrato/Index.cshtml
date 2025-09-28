@@ -39,8 +39,11 @@
                     <a asp-action="Editar" asp-route-id="@c.IdContrato" class="btn btn-sm btn-warning text-dark me-1">
                         Editar
                     </a>
-                    <a asp-action="Eliminar" asp-route-id="@c.IdContrato" class="btn btn-sm btn-danger">
+                    <a asp-action="Eliminar" asp-route-id="@c.IdContrato" class="btn btn-sm btn-danger me-1">
                         Eliminar
+                    </a>
+                    <a asp-controller="Pagos" asp-action="Crear" asp-route-contratoId="@c.IdContrato" class="btn btn-sm btn-success">
+                        Registrar Pago
                     </a>
                 </td>
             </tr>

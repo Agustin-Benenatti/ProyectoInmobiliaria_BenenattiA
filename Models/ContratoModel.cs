@@ -34,5 +34,9 @@ namespace ProyectoInmobiliaria.Models
         [ForeignKey("Inmueble")]
         public int IdInmueble { get; set; }
         public Inmueble? Inmueble { get; set; }
+
+        public decimal? Multa { get; set; }
+        
+        public DateOnly? FechaAnticipada { get; set; }
     }
 }

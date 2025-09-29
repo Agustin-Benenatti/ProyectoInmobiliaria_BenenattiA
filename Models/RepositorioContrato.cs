@@ -55,7 +55,7 @@ namespace ProyectoInmobiliaria.Models
             {
                 connection.Open();
 
-                
+
                 var sqlSelect = "SELECT IdInmueble FROM contratos WHERE IdContrato = @id";
                 using (var commandSelect = new MySqlCommand(sqlSelect, connection))
                 {
@@ -65,7 +65,7 @@ namespace ProyectoInmobiliaria.Models
                         idInmueble = Convert.ToInt32(result);
                 }
 
-                
+
                 var sqlDelete = "DELETE FROM contratos WHERE IdContrato = @id";
                 using (var commandDelete = new MySqlCommand(sqlDelete, connection))
                 {
@@ -73,7 +73,7 @@ namespace ProyectoInmobiliaria.Models
                     res = commandDelete.ExecuteNonQuery();
                 }
 
-                
+
                 if (res > 0 && idInmueble != -1)
                 {
                     var sqlUpdate = "UPDATE inmuebles SET Estado = 'Disponible' WHERE IdInmueble = @idInmueble";
@@ -363,7 +363,7 @@ namespace ProyectoInmobiliaria.Models
 
             return lista;
         }
-        
+
         public IList<Contrato> BuscarPorPropietario(int propietarioId)
         {
             var lista = new List<Contrato>();
@@ -427,6 +427,31 @@ namespace ProyectoInmobiliaria.Models
 
             return lista;
         }
+        
+        public int TerminarAnticipado(int id, DateOnly fechaAnticipada, decimal multa)
+        {
+            int res = -1;
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                string sql = @"UPDATE contratos 
+                            SET Estado = 'Finalizado',
+                                FechaAnticipada = @fechaAnticipada,
+                                Multa = @multa
+                            WHERE IdContrato = @id;";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@fechaAnticipada", fechaAnticipada.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@multa", multa);
+                    command.Parameters.AddWithValue("@id", id);
+
+                    res = command.ExecuteNonQuery();
+                }
+            }
+            return res;
+        }
+
+
 
      }
 

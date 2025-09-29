@@ -17,7 +17,7 @@
 
                         <div class="mb-3">
                             <label asp-for="FechaFin" class="form-label fw-bold"></label>
-                            <input asp-for="FechaFin" type="date" class="form-control" id="fechaFin" />
+                            <input asp-for="FechaFin" type="date" class="form-control" id="fechaFin" readonly />
                             <span asp-validation-for="FechaFin" class="text-danger small"></span>
                         </div>
 
@@ -64,41 +64,37 @@
     </div>
 </div>
 
-
 @section Scripts {
     <script>
-        //validaciones para la fecha 
         document.addEventListener("DOMContentLoaded", function () {
             let fechaInicio = document.getElementById("fechaInicio");
             let fechaFin = document.getElementById("fechaFin");
 
-            
-            let hoy = new Date().toISOString().split('T')[0]; 
-            fechaInicio.value = hoy;
-            fechaInicio.min = hoy;
+            let hoy = new Date();
+            let haceUnMes = new Date();
+            haceUnMes.setMonth(hoy.getMonth() - 1);
 
-            
-            fechaFin.min = hoy;
+            // Formatear fechas 
+            const formatDate = (date) => date.toISOString().split('T')[0];
 
-            
-            fechaInicio.addEventListener("change", function () {
-                let inicio = fechaInicio.value;
-                fechaFin.min = inicio;
-                if (fechaFin.value && fechaFin.value <= inicio) {
-                    fechaFin.value = ""; 
-                }
-            });
+            fechaInicio.value = formatDate(hoy);
+            fechaInicio.min = formatDate(haceUnMes);
+            fechaInicio.max = formatDate(hoy);
 
-            
-            document.getElementById("formContrato").addEventListener("submit", function (e) {
+            // Inicializar fecha fin automaticamente
+            const actualizarFechaFin = () => {
                 let inicio = new Date(fechaInicio.value);
-                let fin = new Date(fechaFin.value);
-
-                if (fin <= inicio) {
-                    e.preventDefault();
-                    alert("La fecha de fin debe ser posterior a la fecha de inicio.");
+                if (!isNaN(inicio)) {
+                    let fin = new Date(inicio);
+                    fin.setMonth(fin.getMonth() + 6);
+                    fechaFin.value = formatDate(fin);
                 }
-            });
+            };
+
+            actualizarFechaFin();
+
+            // Cambiar fecha fin al modificar inicio
+            fechaInicio.addEventListener("change", actualizarFechaFin);
         });
     </script>
 

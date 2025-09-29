@@ -4,7 +4,7 @@
 
     var hoy = DateTime.Today;
     var primerDiaMesAnterior = new DateTime(hoy.Year, hoy.Month, 1).AddMonths(-1);
-    var maxFecha = hoy.AddYears(5); // permite pagos adelantados hasta 5 años
+    var maxFecha = hoy.AddYears(5); 
 }
 
 <h2>Registrar Pago</h2>
@@ -12,7 +12,7 @@
 <form asp-action="Crear" method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <!-- Contrato (solo lectura) -->
+    <!-- Contrato -->
     <div class="form-group mb-3">
         <label>Contrato</label>
         <input type="text" class="form-control" value="Contrato @ViewBag.Contrato.IdContrato - @ViewBag.Contrato.Inquilino.Nombre @ViewBag.Contrato.Inquilino.Apellido" disabled />

@@ -20,7 +20,7 @@ namespace ProyectoInmobiliaria.Models
 
             using var command = new MySqlCommand(sql, connection);
             command.Parameters.AddWithValue("@nroPago", p.NroPago);
-            command.Parameters.AddWithValue("@fechaPago", p.FechaPago.ToDateTime(new TimeOnly(0, 0))); // ✅ CORRECTO
+            command.Parameters.AddWithValue("@fechaPago", p.FechaPago.ToDateTime(new TimeOnly(0, 0))); 
             command.Parameters.AddWithValue("@monto", p.Monto);
             command.Parameters.AddWithValue("@detalle", p.Detalle);
             command.Parameters.AddWithValue("@IdContrato", p.IdContrato);
@@ -78,7 +78,7 @@ namespace ProyectoInmobiliaria.Models
                 {
                     IdPago = reader.GetInt32("IdPago"),
                     NroPago = reader.GetInt32("NroPago"),
-                    FechaPago = DateOnly.FromDateTime(reader.GetDateTime("FechaPago")), // ✅ Leer DateTime y convertir
+                    FechaPago = DateOnly.FromDateTime(reader.GetDateTime("FechaPago")), 
                     Monto = reader.GetDecimal("Monto"),
                     Detalle = reader.GetString("Detalle"),
                     IdContrato = reader.GetInt32("IdContrato")

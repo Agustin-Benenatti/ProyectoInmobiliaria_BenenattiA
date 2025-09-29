@@ -1,28 +1,87 @@
 @model ProyectoInmobiliaria.Models.PagosModels
+
 @{
-    ViewData["Title"] = "Detalle Pago";
+    ViewData["Title"] = "Detalle del Pago";
+    var contrato = ViewBag.Contrato as ProyectoInmobiliaria.Models.Contrato;
 }
 
 <h2>Detalle del Pago</h2>
 
-<div class="card mb-3">
+<div class="card mt-3 shadow-sm">
     <div class="card-body">
-        <p><strong>Número de Pago:</strong> @Model.NroPago</p>
-        <p><strong>Fecha de Pago:</strong> @Model.FechaPago.ToString("dd/MM/yyyy")</p>
+        <h5 class="card-title">Pago N° @Model.NroPago</h5>
+        <p><strong>Fecha de pago:</strong> @Model.FechaPago.ToString("dd/MM/yyyy")</p>
         <p><strong>Monto:</strong> @Model.Monto.ToString("C")</p>
-        <p><strong>Anulado:</strong> @(Model.Anulado ? "Sí" : "No")</p>
+        <p><strong>Detalle:</strong> @Model.Detalle</p>
+        <p>
+            <strong>Estado del pago:</strong>
+            @if (Model.Anulado)
+            {
+                <span class="badge bg-danger">Anulado</span>
+            }
+            else if (!string.IsNullOrEmpty(Model.Detalle) && Model.Detalle.Contains("Multa por terminación anticipada"))
+            {
+                <span class="badge bg-warning text-dark">Multa</span>
+            }
+            else if (contrato?.Estado == "Finalizado" && contrato.FechaAnticipada != null)
+            {
+                <span class="badge bg-danger text-white">⚠ Contrato finalizado anticipadamente</span>
+            }
+            else if (contrato?.Estado == "Finalizado")
+            {
+                <span class="badge bg-secondary">Contrato finalizado</span>
+            }
+            else
+            {
+                <span class="badge bg-success">Vigente</span>
+            }
+        </p>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header">Datos del Contrato</div>
-    <div class="card-body">
-        <p><strong>Propietario:</strong> @ViewBag.PropietarioNombre</p>
-        <p><strong>Inquilino:</strong> @ViewBag.InquilinoNombre</p>
-        <p><strong>Fecha Inicio:</strong> @(ViewBag.Contrato != null ? ((DateOnly)ViewBag.Contrato.FechaInicio).ToDateTime(TimeOnly.MinValue).ToString("dd/MM/yyyy") : "-")</p>
-        <p><strong>Fecha Fin:</strong> @(ViewBag.Contrato != null ? ((DateOnly)ViewBag.Contrato.FechaFin).ToDateTime(TimeOnly.MinValue).ToString("dd/MM/yyyy") : "-")</p>
-        <p><strong>Monto del Contrato:</strong> @(ViewBag.Contrato != null ? ((decimal)ViewBag.Contrato.Precio).ToString("C") : "-")</p>
-    </div>
-</div>
+<h3 class="mt-4">Información del Contrato</h3>
 
-<a asp-action="Index" class="btn btn-secondary mt-3">Volver</a>
+@if (contrato != null)
+{
+    <div class="card mt-2 shadow-sm">
+        <div class="card-body">
+            <p><strong>Inquilino:</strong> @ViewBag.InquilinoNombre</p>
+            <p><strong>Propietario:</strong> @ViewBag.PropietarioNombre</p>
+            <p><strong>Fecha inicio:</strong> @contrato.FechaInicio.ToString("dd/MM/yyyy")</p>
+            <p><strong>Fecha fin:</strong> @contrato.FechaFin.ToString("dd/MM/yyyy")</p>
+            <p><strong>Precio:</strong> @contrato.Precio.ToString("C")</p>
+            <p>
+                <strong>Estado del contrato:</strong>
+                @if (contrato.Estado == "Finalizado" && contrato.FechaAnticipada != null)
+                {
+                    <span class="badge bg-danger text-white">
+                        ⚠ Finalizado anticipadamente (@contrato.FechaAnticipada?.ToString("dd/MM/yyyy"))
+                    </span>
+                }
+                else if (contrato.Estado == "Finalizado")
+                {
+                    <span class="badge bg-secondary">Finalizado</span>
+                }
+                else if (contrato.Estado == "Activo")
+                {
+                    <span class="badge bg-success">Activo</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">@contrato.Estado</span>
+                }
+            </p>
+
+            @if (contrato.FechaAnticipada != null)
+            {
+                <div class="alert alert-danger mt-3 d-flex align-items-center" role="alert">
+                    <span class="me-2 fs-4">⚠</span>
+                    <div>
+                        <strong>Fecha de finalización anticipada:</strong> @contrato.FechaAnticipada?.ToString("dd/MM/yyyy")<br />
+                        <strong>Multa aplicada:</strong> @contrato.Multa?.ToString("C")
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}

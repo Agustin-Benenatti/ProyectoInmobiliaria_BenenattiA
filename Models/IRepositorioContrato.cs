@@ -10,5 +10,7 @@ namespace ProyectoInmobiliaria.Models
         IList<Contrato> BuscarContratosActivos();
         IList<Contrato> BuscarPorInquilino(int InquilidoId);
         IList<Contrato> BuscarPorPropietario(int PrpietarioId);
+        public int TerminarAnticipado(int id, DateOnly fechaAnticipada, decimal multa);
+
     }
 }

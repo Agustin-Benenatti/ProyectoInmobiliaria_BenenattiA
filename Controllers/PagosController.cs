@@ -39,7 +39,7 @@ namespace ProyectoInmobiliaria.Controllers
             return View(lista);
         }
 
-          // GET: Pagos/Detalle/5
+        // GET: Pagos/Detalle/5
         public IActionResult Detalle(int id)
         {
             var pago = _repoPagos.ObtenerPorId(id);
@@ -50,18 +50,36 @@ namespace ProyectoInmobiliaria.Controllers
             if (contrato == null)
                 return NotFound("No se encontró el Contrato asociado.");
 
-            // Obtener el inquilino
+            // Inquilino
             var inquilino = contrato.Inquilino;
             ViewBag.InquilinoNombre = inquilino != null ? $"{inquilino.Nombre} {inquilino.Apellido}" : "No definido";
 
-            // Obtener el propietario desde el inmueble del contrato
+            // Propietario desde inmueble
             var inmueble = contrato.Inmueble;
-            var propietarioNombre = inmueble?.Propietario != null
+            ViewBag.PropietarioNombre = inmueble?.Propietario != null
                 ? $"{inmueble.Propietario.Nombre} {inmueble.Propietario.Apellido}"
                 : "No definido";
-            ViewBag.PropietarioNombre = propietarioNombre;
 
+            // Estado del contrato
+            string estadoContrato;
+            bool contratoTerminadoAnticipado = false;
+            if (contrato.FechaAnticipada != null && contrato.FechaAnticipada < contrato.FechaFin)
+            {
+                estadoContrato = $"Finalizado anticipadamente el {contrato.FechaAnticipada:dd/MM/yyyy}";
+                contratoTerminadoAnticipado = true;
+            }
+            else if (contrato.Estado == "Inactivo")
+            {
+                estadoContrato = "Finalizado";
+            }
+            else
+            {
+                estadoContrato = "Activo";
+            }
+
+            ViewBag.EstadoContrato = estadoContrato;
             ViewBag.Contrato = contrato;
+            ViewBag.ContratoTerminadoAnticipado = contratoTerminadoAnticipado;
 
             return View(pago);
         }
@@ -109,8 +127,7 @@ namespace ProyectoInmobiliaria.Controllers
         public IActionResult Editar(int id)
         {
             var pago = _repoPagos.ObtenerPorId(id);
-            if (pago == null)
-                return NotFound();
+            if (pago == null) return NotFound();
 
             ViewBag.Contrato = _repoContratos.ObtenerPorId(pago.IdContrato);
             return View(pago);

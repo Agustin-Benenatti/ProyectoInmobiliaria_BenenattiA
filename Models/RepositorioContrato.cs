@@ -208,6 +208,8 @@ namespace ProyectoInmobiliaria.Models
                                 FechaFin = DateOnly.FromDateTime(reader.GetDateTime("FechaFin")),
                                 Precio = reader.GetDecimal("Precio"),
                                 Estado = reader.GetString("Estado"),
+                                InquilinoId = reader.GetInt32("InquilinoId"),   
+                                IdInmueble = reader.GetInt32("IdInmueble"), 
 
                                 Inquilino = new Inquilino
                                 {
@@ -465,7 +467,7 @@ namespace ProyectoInmobiliaria.Models
             }
             return cantidad;
         }
-        
+
         public IList<Contrato> ObtenerLista(int paginaNro, int tamPag)
         {
             var lista = new List<Contrato>();
@@ -536,8 +538,41 @@ namespace ProyectoInmobiliaria.Models
 
             return lista;
         }
+        
+        public int RenovarContrato(int idContrato)
+        {
+            int nuevoId = -1;
 
+            using (var connection = GetConnection())
+            {
+                connection.Open();
 
+                var contrato = ObtenerPorId(idContrato);
+                if (contrato == null) return -1;
+
+                
+                DateTime nuevaFechaInicio = contrato.FechaFin.ToDateTime(TimeOnly.MinValue).AddDays(1);
+                DateTime nuevaFechaFin = nuevaFechaInicio.AddMonths(6);
+
+                string sql = @"INSERT INTO contratos 
+                                (FechaInicio, FechaFin, Precio, Estado, InquilinoId, IdInmueble)
+                            VALUES (@fechaInicio, @fechaFin, @precio, 'Activo', @inquilinoId, @idInmueble);
+                            SELECT LAST_INSERT_ID();";
+
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@fechaInicio", nuevaFechaInicio);
+                    command.Parameters.AddWithValue("@fechaFin", nuevaFechaFin);
+                    command.Parameters.AddWithValue("@precio", contrato.Precio);
+                    command.Parameters.AddWithValue("@inquilinoId", contrato.InquilinoId);
+                    command.Parameters.AddWithValue("@idInmueble", contrato.IdInmueble);
+
+                    nuevoId = Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+
+            return nuevoId;
+        }
      }
 
 

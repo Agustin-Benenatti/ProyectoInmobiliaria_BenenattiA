@@ -13,5 +13,6 @@ namespace ProyectoInmobiliaria.Models
         IList<Contrato> ObtenerLista(int paginaNro, int tamPag);
         public int TerminarAnticipado(int id, DateOnly fechaAnticipada, decimal multa);
         int ObtenerCantidad();
+        int RenovarContrato(int idContrato);
     }
 }

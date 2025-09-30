@@ -22,7 +22,7 @@
                 <th>Inquilino</th>
                 <th>Dirección Inmueble</th>
                 <th>Propietario</th>
-                <th style="min-width: 420px;">Acciones</th>
+                <th style="min-width: 500px;">Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -45,6 +45,7 @@
                         <a asp-action="Editar" asp-route-id="@c.IdContrato" class="btn btn-sm btn-warning text-dark">Editar</a>
                         <a asp-action="Eliminar" asp-route-id="@c.IdContrato" class="btn btn-sm btn-danger">Eliminar</a>
                         <a asp-controller="Pagos" asp-action="Index" asp-route-contratoId="@c.IdContrato" class="btn btn-sm btn-success">Pagos</a>
+
                         <button type="button"
                                 class="btn btn-sm btn-danger btn-terminar"
                                 data-contrato="@c.IdContrato"
@@ -52,6 +53,16 @@
                                 @(contratoFinalizado ? "disabled" : "")>
                             Terminar Anticipadamente
                         </button>
+
+                        @* Botón Renovar: habilitado solo si hay 6 pagos y contrato finalizado *@
+                        @if (pagosRegistrados >= 6 && contratoFinalizado)
+                        {
+                            <a asp-action="Renovar" asp-route-id="@c.IdContrato" class="btn btn-sm btn-primary">Renovar</a>
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm btn-primary" disabled>Renovar</button>
+                        }
                     </div>
                 </td>
             </tr>
@@ -92,7 +103,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
-        No se puede finalizar anticipadamente: debes tener al menos un pago registrado.
+        No se puede finalizar anticipadamente: Se adeuda un pago.
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -118,7 +129,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 const modal = new bootstrap.Modal(document.getElementById('modalNoPago'));
                 modal.show();
             } else {
-                
                 window.location.href = `/Contrato/TerminarAnticipado?id=${contratoId}`;
             }
         });

@@ -27,9 +27,9 @@ namespace ProyectoInmobiliaria.Controllers
         }
 
         // GET: Contrato
-      public IActionResult Index(int pagina = 1) 
+        public IActionResult Index(int pagina = 1)
         {
-            int tamPag = 3; 
+            int tamPag = 3;
             IEnumerable<Contrato> lista;
 
             if (pagina <= 0)
@@ -46,13 +46,13 @@ namespace ProyectoInmobiliaria.Controllers
                 ViewBag.TotalPaginas = (int)Math.Ceiling((double)total / tamPag);
             }
 
-            
+
             var pagosPorContrato = lista.ToDictionary(
                 c => c.IdContrato,
                 c => _repoPagos.ObtenerPagosPorContrato(c.IdContrato)?.Count(p => !p.Anulado) ?? 0
             );
             ViewBag.PagosPorContrato = pagosPorContrato;
-            
+
 
             return View(lista);
         }
@@ -210,7 +210,7 @@ namespace ProyectoInmobiliaria.Controllers
             // Calcular multa
             var multa = (totalMeses < 3) ? contrato.Precio * 2 : contrato.Precio;
 
-            
+
             _repo.TerminarAnticipado(contrato.IdContrato, fechaAnticipada, multa);
 
             // Registrar pago de multa si aplica
@@ -233,8 +233,72 @@ namespace ProyectoInmobiliaria.Controllers
 
             TempData["InfoMulta"] = $"La multa calculada es {multa:C}";
 
-            
+
             return RedirectToAction(nameof(Detalle), new { id = contrato.IdContrato });
         }
+
+        private bool PuedeRenovarContrato(int contratoId)
+        {
+            var contrato = _repo.ObtenerPorId(contratoId);
+            if (contrato == null) return false;
+
+            // Solo se puede renovar si el contrato está finalizado
+            if (contrato.Estado != "Finalizado")
+                return false;
+
+            // Verificar que tenga al menos 6 pagos hechos (no anulados)
+            var pagos = _repoPagos.ObtenerPagosPorContrato(contratoId);
+            if (pagos == null) return false;
+
+            var pagosRealizados = pagos.Count(p => !p.Anulado);
+            return pagosRealizados >= 6;
+        }
+
+        
+         public IActionResult Renovar(int id)
+        {
+            if (!PuedeRenovarContrato(id))
+            {
+                TempData["Error"] = "El contrato debe estar Finalizado y tener al menos 6 pagos para poder renovarse.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var contrato = _repo.ObtenerPorId(id);
+            if (contrato == null) return NotFound();
+
+            var nuevoContrato = new Contrato
+            {
+                FechaInicio = DateOnly.FromDateTime(DateTime.Today),
+                FechaFin = DateOnly.FromDateTime(DateTime.Today.AddMonths(6)),
+                Precio = contrato.Precio,  
+                InquilinoId = contrato.InquilinoId,
+                IdInmueble = contrato.IdInmueble,
+                Estado = "Activo",
+                Inquilino = contrato.Inquilino,
+                Inmueble = contrato.Inmueble
+            };
+
+            return View(nuevoContrato);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Renovar(Contrato contrato)
+        {
+            if (ModelState.IsValid)
+            {
+                // Siempre 6 meses de duración
+                contrato.FechaFin = contrato.FechaInicio.AddMonths(6);
+                contrato.Estado = "Activo";
+
+                var nuevoId = _repo.Alta(contrato);
+                TempData["Info"] = $"Contrato renovado con Id={nuevoId}";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(contrato);
+        }
+
     }
 }

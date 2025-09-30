@@ -2,11 +2,71 @@
 
 @{
     ViewData["Title"] = "Pagos";
+    var contrato = ViewBag.Contrato as ProyectoInmobiliaria.Models.Contrato;
+
+    int totalPagosContrato = 6; 
+    int pagosValidos = Model?.Count(p => !p.Anulado) ?? 0;
+    int pagosPendientes = totalPagosContrato - pagosValidos;
+
+    bool contratoFinalizado = contrato != null &&
+        (contrato.Estado == "Inactivo" || contrato.Estado == "Finalizado" ||
+        (contrato.FechaAnticipada != null && contrato.FechaAnticipada < contrato.FechaFin));
+
+    bool cuotaCumplida = pagosValidos >= totalPagosContrato;
+
+    
+    bool bloqueoPago = contratoFinalizado || cuotaCumplida;
+    string motivoBloqueo = contratoFinalizado 
+        ? "No se puede registrar un pago porque el contrato ya está finalizado."
+        : "Todos los pagos del contrato han sido realizados. No se pueden registrar más pagos.";
 }
 
 <h2 class="mb-3">Pagos</h2>
 
+@if (contrato != null)
+{
+    <div class="alert alert-info shadow-sm">
+        <h5 class="mb-2">Contrato N° @contrato.IdContrato</h5>
+        <p>
+            <strong>Inquilino:</strong> @($"{contrato.Inquilino?.Nombre} {contrato.Inquilino?.Apellido}") <br />
+            <strong>Propietario:</strong> @($"{contrato.Inmueble?.Propietario?.Nombre} {contrato.Inmueble?.Propietario?.Apellido}") <br />
+            <strong>Importe mensual:</strong> @contrato.Precio.ToString("C")
+        </p>
+        <hr />
+        <p>
+            <strong>Pagos realizados:</strong> @pagosValidos / @totalPagosContrato <br />
+            <strong>Pagos pendientes:</strong> @pagosPendientes
+        </p>
 
+        <!-- Botón para registrar pago -->
+        <button class="btn @(bloqueoPago ? "btn-danger" : "btn-success")" type="button" id="btnRegistrarPago">
+            Registrar nuevo pago
+        </button>
+    </div>
+
+    <!-- Modal que muestra el motivo de bloqueo -->
+    @if (bloqueoPago)
+    {
+        <div class="modal fade" id="modalBloqueoPago" tabindex="-1" aria-labelledby="modalBloqueoPagoLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header @(contratoFinalizado ? "bg-danger" : "bg-success") text-white">
+                        <h5 class="modal-title" id="modalBloqueoPagoLabel">Registro de pago no permitido</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        @motivoBloqueo
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<!-- Tabla de pagos -->
 <table class="table table-striped table-hover table-bordered shadow-sm">
     <thead class="table-dark">
         <tr>
@@ -29,7 +89,10 @@
                     <td>@(item.Anulado ? "Sí" : "No")</td>
                     <td>
                         <a asp-action="Editar" asp-route-id="@item.IdPago" class="btn btn-sm btn-primary">Editar</a>
-                        <a asp-action="Anular" asp-route-id="@item.IdPago" class="btn btn-sm btn-danger">Anular</a>
+                        @if (!item.Anulado)
+                        {
+                            <a asp-action="Anular" asp-route-id="@item.IdPago" class="btn btn-sm btn-danger">Anular</a>
+                        }
                         <a asp-action="Detalle" asp-route-id="@item.IdPago" class="btn btn-sm btn-warning">Detalles</a>
                     </td>
                 </tr>
@@ -44,25 +107,25 @@
     </tbody>
 </table>
 
-<!-- Paginación -->
-@if (ViewBag.TotalPaginas > 1)
-{
-    <nav aria-label="Paginación">
-        <ul class="pagination justify-content-center">
-            <li class="page-item @(ViewBag.Pagina == 1 ? "disabled" : "")">
-                <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.Pagina - 1)">Anterior</a>
-            </li>
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var bloqueoPago = @bloqueoPago.ToString().ToLower();
+            var btnRegistrarPago = document.getElementById("btnRegistrarPago");
 
-            @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
-            {
-                <li class="page-item @(ViewBag.Pagina == i ? "active" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-pagina="@i">@i</a>
-                </li>
+            if (btnRegistrarPago && bloqueoPago) {
+                btnRegistrarPago.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    var modalEl = document.getElementById('modalBloqueoPago');
+                    var modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                });
+            } else if (btnRegistrarPago) {
+                btnRegistrarPago.addEventListener("click", function () {
+                    
+                    window.location.href = '@Url.Action("Crear", "Pagos", new { contratoId = contrato?.IdContrato })';
+                });
             }
-
-            <li class="page-item @(ViewBag.Pagina == ViewBag.TotalPaginas ? "disabled" : "")">
-                <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.Pagina + 1)">Siguiente</a>
-            </li>
-        </ul>
-    </nav>
+        });
+    </script>
 }

@@ -27,9 +27,33 @@ namespace ProyectoInmobiliaria.Controllers
         }
 
         // GET: Contrato
-        public IActionResult Index()
+      public IActionResult Index(int pagina = 1) 
         {
-            var lista = _repo.ObtenerTodos();
+            int tamPag = 3; 
+            IEnumerable<Contrato> lista;
+
+            if (pagina <= 0)
+            {
+                lista = _repo.ObtenerTodos();
+                ViewBag.Pagina = 0;
+                ViewBag.TotalPaginas = 0;
+            }
+            else
+            {
+                lista = _repo.ObtenerLista(pagina, tamPag);
+                int total = _repo.ObtenerCantidad();
+                ViewBag.Pagina = pagina;
+                ViewBag.TotalPaginas = (int)Math.Ceiling((double)total / tamPag);
+            }
+
+            
+            var pagosPorContrato = lista.ToDictionary(
+                c => c.IdContrato,
+                c => _repoPagos.ObtenerPagosPorContrato(c.IdContrato)?.Count(p => !p.Anulado) ?? 0
+            );
+            ViewBag.PagosPorContrato = pagosPorContrato;
+            
+
             return View(lista);
         }
 
@@ -209,7 +233,7 @@ namespace ProyectoInmobiliaria.Controllers
 
             TempData["InfoMulta"] = $"La multa calculada es {multa:C}";
 
-            // Redirigir a Detalle; ya se mostrará Estado = 'Finalizado'
+            
             return RedirectToAction(nameof(Detalle), new { id = contrato.IdContrato });
         }
     }

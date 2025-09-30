@@ -427,7 +427,7 @@ namespace ProyectoInmobiliaria.Models
 
             return lista;
         }
-        
+
         public int TerminarAnticipado(int id, DateOnly fechaAnticipada, decimal multa)
         {
             int res = -1;
@@ -451,6 +451,91 @@ namespace ProyectoInmobiliaria.Models
             return res;
         }
 
+        public int ObtenerCantidad()
+        {
+            int cantidad = 0;
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                var sql = @"SELECT COUNT(*) FROM contratos";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    cantidad = Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+            return cantidad;
+        }
+        
+        public IList<Contrato> ObtenerLista(int paginaNro, int tamPag)
+        {
+            var lista = new List<Contrato>();
+            try
+            {
+                using (var connection = GetConnection())
+                {
+                    connection.Open();
+                    var sql = @"
+                        SELECT 
+                            c.IdContrato, c.FechaInicio, c.FechaFin, c.Precio, c.Estado,
+                            i.InquilinoId, i.Nombre AS NombreInquilino, i.Apellido AS ApellidoInquilino,
+                            im.IdInmueble, im.Direccion AS DireccionInmueble,
+                            p.PropietarioId, p.Nombre AS NombrePropietario, p.Apellido AS ApellidoPropietario
+                        FROM contratos c
+                        INNER JOIN inquilinos i ON c.InquilinoId = i.InquilinoId
+                        INNER JOIN inmuebles im ON c.IdInmueble = im.IdInmueble
+                        INNER JOIN propietarios p ON im.PropietarioId = p.PropietarioId
+                        ORDER BY c.IdContrato
+                        LIMIT @limit OFFSET @offset";
+
+                    using (var command = new MySqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@limit", tamPag);
+                        command.Parameters.AddWithValue("@offset", (paginaNro - 1) * tamPag);
+
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                lista.Add(new Contrato
+                                {
+                                    IdContrato = reader.GetInt32("IdContrato"),
+                                    FechaInicio = DateOnly.FromDateTime(reader.GetDateTime("FechaInicio")),
+                                    FechaFin = DateOnly.FromDateTime(reader.GetDateTime("FechaFin")),
+                                    Precio = reader.GetDecimal("Precio"),
+                                    Estado = reader.GetString("Estado"),
+
+                                    Inquilino = new Inquilino
+                                    {
+                                        InquilinoId = reader.GetInt32("InquilinoId"),
+                                        Nombre = reader.GetString("NombreInquilino"),
+                                        Apellido = reader.GetString("ApellidoInquilino")
+                                    },
+
+                                    Inmueble = new Inmueble
+                                    {
+                                        IdInmueble = reader.GetInt32("IdInmueble"),
+                                        Direccion = reader.GetString("DireccionInmueble"),
+
+                                        Propietario = new Propietario
+                                        {
+                                            PropietarioId = reader.GetInt32("PropietarioId"),
+                                            Nombre = reader.GetString("NombrePropietario"),
+                                            Apellido = reader.GetString("ApellidoPropietario")
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error en ObtenerLista Contratos: " + ex.Message);
+            }
+
+            return lista;
+        }
 
 
      }

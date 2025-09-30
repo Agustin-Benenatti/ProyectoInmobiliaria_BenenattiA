@@ -5,50 +5,74 @@
     var hoy = DateTime.Today;
     var primerDiaMesAnterior = new DateTime(hoy.Year, hoy.Month, 1).AddMonths(-1);
     var maxFecha = hoy.AddYears(5); 
+    var contrato = ViewBag.Contrato as ProyectoInmobiliaria.Models.Contrato;
+
+    int pagosRegistrados = contrato != null ? (ViewBag.PagosExistentes ?? 0) : 0;
+    int nroProximoPago = pagosRegistrados + 1;
 }
 
 <h2>Registrar Pago</h2>
 
-<form asp-action="Crear" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+@if (contrato == null)
+{
+    <div class="alert alert-danger">No se encontró el contrato.</div>
+}
+else
+{
+    <div class="alert alert-info mb-3">
+        Pagos registrados: @pagosRegistrados / 6 <br />
+        Número de próximo pago: @nroProximoPago
+    </div>
 
-    <!-- Contrato -->
-    <div class="form-group mb-3">
-        <label>Contrato</label>
-        <input type="text" class="form-control" value="Contrato @ViewBag.Contrato.IdContrato - @ViewBag.Contrato.Inquilino.Nombre @ViewBag.Contrato.Inquilino.Apellido" disabled />
+    <form asp-action="Crear" method="post" id="formPago">
         <input type="hidden" asp-for="IdContrato" />
-    </div>
 
-    <!-- Número de Pago -->
-    <div class="form-group mb-3">
-        <label asp-for="NroPago"></label>
-        <input asp-for="NroPago" class="form-control" readonly />
-    </div>
+        <!-- Contrato -->
+        <div class="form-group mb-3">
+            <label>Contrato</label>
+            <input type="text" class="form-control" 
+                   value="Contrato @contrato.IdContrato - @(contrato.Inquilino?.Nombre ?? "") @(contrato.Inquilino?.Apellido ?? "")" 
+                   disabled />
+        </div>
 
-    <!-- Fecha de Pago -->
-    <div class="form-group mb-3">
-        <label asp-for="FechaPago"></label>
-        <input asp-for="FechaPago" type="date" 
-               class="form-control"
-               value="@Model.FechaPago.ToString("yyyy-MM-dd")"
-               min="@primerDiaMesAnterior.ToString("yyyy-MM-dd")"
-               max="@maxFecha.ToString("yyyy-MM-dd")" />
-        <span asp-validation-for="FechaPago" class="text-danger"></span>
-    </div>
+        <!-- Número de Pago -->
+        <div class="form-group mb-3">
+            <label asp-for="NroPago"></label>
+            <input asp-for="NroPago" class="form-control" value="@nroProximoPago" readonly />
+        </div>
 
-    <!-- Monto -->
-    <div class="form-group mb-3">
-        <label asp-for="Monto"></label>
-        <input asp-for="Monto" class="form-control" />
-        <span asp-validation-for="Monto" class="text-danger"></span>
-    </div>
+        <!-- Fecha de Pago -->
+        <div class="form-group mb-3">
+            <label asp-for="FechaPago"></label>
+            <input asp-for="FechaPago" type="date" 
+                   class="form-control"
+                   value="@Model.FechaPago.ToString("yyyy-MM-dd")"
+                   min="@primerDiaMesAnterior.ToString("yyyy-MM-dd")"
+                   max="@maxFecha.ToString("yyyy-MM-dd")" />
+            <span asp-validation-for="FechaPago" class="text-danger"></span>
+        </div>
 
-    <!-- Detalle -->
-    <div class="form-group mb-3">
-        <label asp-for="Detalle"></label>
-        <input asp-for="Detalle" class="form-control" />
-    </div>
+        <!-- Monto -->
+        <div class="form-group mb-3">
+            <label asp-for="Monto"></label>
+            <input asp-for="Monto" type="number" step="0.01" class="form-control" />
+            <span asp-validation-for="Monto" class="text-danger"></span>
+        </div>
 
-    <button type="submit" class="btn btn-success me-2">Guardar</button>
-    <a asp-action="Index" class="btn btn-secondary">Volver</a>
-</form>
+        <!-- Detalle -->
+        <div class="form-group mb-3">
+            <label asp-for="Detalle"></label>
+            <input asp-for="Detalle" class="form-control" />
+        </div>
+
+        <!-- Botón de Guardar -->
+        <div class="mb-3">
+            <button type="submit" class="btn btn-success">Guardar</button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Volver</a>
+        </div>
+    </form>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

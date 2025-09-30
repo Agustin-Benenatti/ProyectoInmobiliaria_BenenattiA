@@ -11,5 +11,6 @@ namespace ProyectoInmobiliaria.Models
         IList<PagosModels> ObtenerLista(int pagNro, int tamPag);
         int ObtenerCantidad();
         void AnularPago(int idPago);
+        int ObtenerUltimoNumeroPago(int idContrato);
     }
 }

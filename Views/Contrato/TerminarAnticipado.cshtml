@@ -8,8 +8,9 @@
                     <h3 class="mb-0">Finalizar Contrato Anticipadamente</h3>
                 </div>
                 <div class="card-body p-4">
-                    <form asp-action="TerminarAnticipado" method="post" id="terminarForm">
-                        <input type="hidden" asp-for="IdContrato" />
+                    <form asp-controller="Contrato" asp-action="TerminarAnticipado" method="post" id="terminarForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.IdContrato" />
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Fecha de Inicio</label>
@@ -22,12 +23,12 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="FechaAnticipada" class="form-label fw-bold">Fecha de Terminación Anticipada</label>
-                            <input asp-for="FechaAnticipada" type="date" class="form-control" 
+                            <label class="form-label fw-bold">Fecha de Terminación Anticipada</label>
+                            <input type="date" name="fechaAnticipada" class="form-control" 
                                    id="fechaAnticipada"
                                    min="@Model.FechaInicio.ToString("yyyy-MM-dd")" 
                                    max="@Model.FechaFin.ToString("yyyy-MM-dd")" />
-                            <span asp-validation-for="FechaAnticipada" class="text-danger small"></span>
+                            <span class="text-danger small" asp-validation-for="FechaAnticipada"></span>
                         </div>
 
                         <div class="mb-3">
@@ -36,11 +37,10 @@
                         </div>
 
                         <div class="d-flex justify-content-end mt-4">
-                            <a asp-action="Index" asp-route-id="@Model.IdContrato" class="btn btn-secondary me-2">Cancelar</a>
+                            <a asp-action="Index" asp-controller="Contrato" class="btn btn-secondary me-2">Cancelar</a>
                             <button type="submit" class="btn btn-danger">Finalizar Contrato</button>
                         </div>
                     </form>
-
                 </div>
             </div>
         </div>
@@ -52,8 +52,8 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const fechaInicio = new Date("@Model.FechaInicio.ToString("yyyy-MM-dd")" + "T00:00:00");
-            const fechaFin = new Date("@Model.FechaFin.ToString("yyyy-MM-dd")" + "T00:00:00");
+            const fechaInicio = new Date("@Model.FechaInicio.ToString("yyyy-MM-dd")T00:00:00");
+            const fechaFin = new Date("@Model.FechaFin.ToString("yyyy-MM-dd")T00:00:00");
             const precio = @System.Text.Json.JsonSerializer.Serialize(Model.Precio);
 
             const fechaInput = document.getElementById("fechaAnticipada");
@@ -71,17 +71,14 @@
                     return;
                 }
 
-                let totalMeses = (fechaSeleccionada.getFullYear() - fechaInicio.getFullYear()) * 12;
-                totalMeses += fechaSeleccionada.getMonth() - fechaInicio.getMonth();
-                if (fechaSeleccionada.getDate() < fechaInicio.getDate()) totalMeses--;
+                const totalDias = (fechaFin - fechaInicio) / (1000 * 60 * 60 * 24);
+                const diasCumplidos = (fechaSeleccionada - fechaInicio) / (1000 * 60 * 60 * 24);
 
-                const multa = (totalMeses < 3) ? precio * 2 : precio * 1;
+                const multa = (diasCumplidos < totalDias / 2) ? precio * 2 : precio;
                 multaInput.value = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(multa);
             }
 
             fechaInput.addEventListener("change", calcularMulta);
-
-            
             if (fechaInput.value) calcularMulta();
         });
     </script>

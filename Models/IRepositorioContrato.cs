@@ -14,5 +14,6 @@ namespace ProyectoInmobiliaria.Models
         public int TerminarAnticipado(int id, DateOnly fechaAnticipada, decimal multa);
         int ObtenerCantidad();
         int RenovarContrato(int idContrato);
+        bool ExisteSolapamiento(int idInmueble, DateOnly inicio, DateOnly fin, int? idContrato = null);
     }
 }

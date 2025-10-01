@@ -8,5 +8,7 @@ namespace ProyectoInmobiliaria.Models
     public interface IRepositorioInmueble : IRepositorio<Inmueble>
     {
         IList<Inmueble> BuscarPorPropietario(int idPropietario);
+        bool InmuebleDisponible(int idInmueble);
+        IList<Inmueble> ObtenerDisponibles();
     }
 }

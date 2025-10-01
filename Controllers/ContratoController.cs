@@ -69,11 +69,18 @@ namespace ProyectoInmobiliaria.Controllers
         public IActionResult Crear()
         {
             ViewBag.Inquilinos = new SelectList(
-                _repoInquilino.ObtenerTodos().Select(i => new { i.InquilinoId, NombreCompleto = i.Nombre + " " + i.Apellido }),
+                _repoInquilino.ObtenerTodos()
+                    .Select(i => new { i.InquilinoId, NombreCompleto = i.Nombre + " " + i.Apellido }),
                 "InquilinoId",
                 "NombreCompleto"
             );
-            ViewBag.Inmuebles = new SelectList(_repoInmueble.ObtenerTodos(), "IdInmueble", "Direccion");
+
+            ViewBag.Inmuebles = new SelectList(
+                _repoInmueble.ObtenerTodos(),
+                "IdInmueble",
+                "Direccion"
+            );
+
             return View();
         }
 
@@ -87,20 +94,39 @@ namespace ProyectoInmobiliaria.Controllers
                 if (contrato.FechaInicio != DateOnly.MinValue)
                     contrato.FechaFin = contrato.FechaInicio.AddMonths(6);
 
-                _repo.Alta(contrato);
-                return RedirectToAction(nameof(Index));
+                // Verificar solapamiento de fechas antes de guardar
+                if (_repo.ExisteSolapamiento(contrato.IdInmueble, contrato.FechaInicio, contrato.FechaFin))
+                {
+                    ModelState.AddModelError("", "El inmueble ya tiene un contrato activo que se solapa con las fechas seleccionadas.");
+                }
+                else
+                {
+                    contrato.Estado = "Activo";
+                    _repo.Alta(contrato);
+                    return RedirectToAction(nameof(Index));
+                }
             }
 
+            // Si hubo error, recargar selects
             ViewBag.Inquilinos = new SelectList(
-                _repoInquilino.ObtenerTodos().Select(i => new { i.InquilinoId, NombreCompleto = i.Nombre + " " + i.Apellido }),
+                _repoInquilino.ObtenerTodos()
+                    .Select(i => new { i.InquilinoId, NombreCompleto = i.Nombre + " " + i.Apellido }),
                 "InquilinoId",
                 "NombreCompleto",
                 contrato.InquilinoId
             );
-            ViewBag.Inmuebles = new SelectList(_repoInmueble.ObtenerTodos(), "IdInmueble", "Direccion", contrato.IdInmueble);
+
+            ViewBag.Inmuebles = new SelectList(
+                _repoInmueble.ObtenerTodos(),
+                "IdInmueble",
+                "Direccion",
+                contrato.IdInmueble
+            );
 
             return View(contrato);
         }
+
+
 
         // GET: Contrato/Editar
         public IActionResult Editar(int id)

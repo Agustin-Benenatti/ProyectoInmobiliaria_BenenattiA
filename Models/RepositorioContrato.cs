@@ -208,8 +208,8 @@ namespace ProyectoInmobiliaria.Models
                                 FechaFin = DateOnly.FromDateTime(reader.GetDateTime("FechaFin")),
                                 Precio = reader.GetDecimal("Precio"),
                                 Estado = reader.GetString("Estado"),
-                                InquilinoId = reader.GetInt32("InquilinoId"),   
-                                IdInmueble = reader.GetInt32("IdInmueble"), 
+                                InquilinoId = reader.GetInt32("InquilinoId"),
+                                IdInmueble = reader.GetInt32("IdInmueble"),
 
                                 Inquilino = new Inquilino
                                 {
@@ -538,7 +538,7 @@ namespace ProyectoInmobiliaria.Models
 
             return lista;
         }
-        
+
         public int RenovarContrato(int idContrato)
         {
             int nuevoId = -1;
@@ -550,7 +550,6 @@ namespace ProyectoInmobiliaria.Models
                 var contrato = ObtenerPorId(idContrato);
                 if (contrato == null) return -1;
 
-                
                 DateTime nuevaFechaInicio = contrato.FechaFin.ToDateTime(TimeOnly.MinValue).AddDays(1);
                 DateTime nuevaFechaFin = nuevaFechaInicio.AddMonths(6);
 
@@ -573,6 +572,39 @@ namespace ProyectoInmobiliaria.Models
 
             return nuevoId;
         }
+
+        public bool ExisteSolapamiento(int idInmueble, DateOnly inicio, DateOnly fin, int? idContrato = null)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                var sql = @"
+                    SELECT COUNT(*) 
+                    FROM contratos 
+                    WHERE IdInmueble = @idInmueble
+                    AND Estado = 'Activo'
+                    AND (
+                            (@inicio <= FechaFin AND @fin >= FechaInicio)
+                        )
+                ";
+
+                if (idContrato.HasValue)
+                    sql += " AND IdContrato <> @idContrato";
+
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@idInmueble", idInmueble);
+                    command.Parameters.AddWithValue("@inicio", inicio.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@fin", fin.ToString("yyyy-MM-dd"));
+                    if (idContrato.HasValue)
+                        command.Parameters.AddWithValue("@idContrato", idContrato.Value);
+
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count > 0; 
+                }
+            }
+        }
+
      }
 
 

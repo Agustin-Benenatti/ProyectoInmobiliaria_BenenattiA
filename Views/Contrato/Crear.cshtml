@@ -8,6 +8,7 @@
                     <h3 class="mb-0">Crear Nuevo Contrato</h3>
                 </div>
                 <div class="card-body p-4">
+
                     <form asp-action="Crear" method="post" id="formContrato">
                         <div class="mb-3">
                             <label asp-for="FechaInicio" class="form-label fw-bold"></label>
@@ -27,15 +28,8 @@
                             <span asp-validation-for="Precio" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Estado" class="form-label fw-bold"></label>
-                            <select asp-for="Estado" class="form-select">
-                                <option value="Activo">Activo</option>
-                                <option value="Finalizado">Finalizado</option>
-                                <option value="Cancelado">Cancelado</option>
-                            </select>
-                            <span asp-validation-for="Estado" class="text-danger small"></span>
-                        </div>
+                        <!-- Estado oculto siempre = Activo -->
+                        <input type="hidden" asp-for="Estado" value="Activo" />
 
                         <div class="mb-3">
                             <label asp-for="InquilinoId" class="form-label fw-bold">Inquilino</label>
@@ -64,6 +58,27 @@
     </div>
 </div>
 
+<!-- Modal de Error -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="errorModalLabel">Error al crear contrato</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <div>@error.ErrorMessage</div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -74,14 +89,19 @@
             let haceUnMes = new Date();
             haceUnMes.setMonth(hoy.getMonth() - 1);
 
-            // Formatear fechas 
+            // Función para formatear YYYY-MM-DD
             const formatDate = (date) => date.toISOString().split('T')[0];
 
+            // Valor inicial = hoy (fecha de la PC)
             fechaInicio.value = formatDate(hoy);
-            fechaInicio.min = formatDate(haceUnMes);
-            fechaInicio.max = formatDate(hoy);
 
-            // Inicializar fecha fin automaticamente
+            // Permitir un mes atrás como mínimo
+            fechaInicio.min = formatDate(haceUnMes);
+
+            // Sin límite máximo → se puede elegir futuro
+            fechaInicio.removeAttribute("max");
+
+            // Inicializar fecha fin automáticamente (6 meses después)
             const actualizarFechaFin = () => {
                 let inicio = new Date(fechaInicio.value);
                 if (!isNaN(inicio)) {
@@ -93,8 +113,17 @@
 
             actualizarFechaFin();
 
-            // Cambiar fecha fin al modificar inicio
+            
             fechaInicio.addEventListener("change", actualizarFechaFin);
+
+            
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+            {
+                <text>
+                    var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                    errorModal.show();
+                </text>
+            }
         });
     </script>
 

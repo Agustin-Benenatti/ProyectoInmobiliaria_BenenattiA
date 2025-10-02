@@ -1,0 +1,40 @@
+@model ProyectoInmobiliaria.Models.Usuario
+
+@{
+    ViewData["Title"] = "Detalle de Usuario";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-header bg-dark text-white">
+            <h3 class="mb-0">Detalle de Usuario</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    <img src="@Model.Avatar" alt="avatar" class="img-fluid rounded-circle mb-3" width="120" height="120" />
+                </div>
+                <div class="col-md-9">
+                    <dl class="row">
+                        <dt class="col-sm-3">Nombre</dt>
+                        <dd class="col-sm-9">@Model.Nombre</dd>
+
+                        <dt class="col-sm-3">Apellido</dt>
+                        <dd class="col-sm-9">@Model.Apellido</dd>
+
+                        <dt class="col-sm-3">Email</dt>
+                        <dd class="col-sm-9">@Model.Email</dd>
+
+                        <dt class="col-sm-3">Rol</dt>
+                        <dd class="col-sm-9">@Model.Rol</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer text-end">
+            <a asp-action="Index" class="btn btn-secondary">Volver</a>
+            <a asp-action="EditarPerfil" asp-route-id="@Model.IdUsuario" class="btn btn-warning">Editar</a>
+            <a asp-action="Delete" asp-route-id="@Model.IdUsuario" class="btn btn-danger">Eliminar</a>
+        </div>
+    </div>
+</div>

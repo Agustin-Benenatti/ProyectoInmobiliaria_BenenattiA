@@ -1,0 +1,18 @@
+@{
+    ViewData["Title"] = "Acceso Denegado";
+}
+
+<div class="container mt-5">
+    <div class="alert alert-danger text-center">
+        <h3>Acceso denegado</h3>
+        <p>No tenés permisos para acceder a esta sección.</p>
+
+        @if (ViewBag.ReturnUrl != null)
+        {
+            <p>Intentaste acceder a: <strong>@ViewBag.ReturnUrl</strong></p>
+        }
+
+        <a asp-action="Index" asp-controller="Home" class="btn btn-dark">Volver al inicio</a>
+        
+    </div>
+</div>

@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ProyectoInmobiliaria.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ProyectoInmobiliaria.Controllers
 {
-    public class ContratoController : Controller
+        [Authorize]
+        public class ContratoController : Controller
     {
         private readonly IRepositorioContrato _repo;
         private readonly IRepositorioInquilino _repoInquilino;
@@ -173,6 +175,7 @@ namespace ProyectoInmobiliaria.Controllers
         }
 
         // GET: Contrato/Eliminar
+        [Authorize(Roles ="Administrador")]
         public IActionResult Eliminar(int id)
         {
             var contrato = _repo.ObtenerPorId(id);
@@ -182,6 +185,7 @@ namespace ProyectoInmobiliaria.Controllers
 
         // POST: Contrato/EliminarConfirmado
         [HttpPost, ActionName("EliminarConfirmado")]
+        [Authorize(Roles ="Administrador")]
         [ValidateAntiForgeryToken]
         public IActionResult EliminarConfirmado(int id)
         {
@@ -280,8 +284,8 @@ namespace ProyectoInmobiliaria.Controllers
             return pagosRealizados >= 6;
         }
 
-        
-         public IActionResult Renovar(int id)
+
+        public IActionResult Renovar(int id)
         {
             if (!PuedeRenovarContrato(id))
             {
@@ -296,7 +300,7 @@ namespace ProyectoInmobiliaria.Controllers
             {
                 FechaInicio = DateOnly.FromDateTime(DateTime.Today),
                 FechaFin = DateOnly.FromDateTime(DateTime.Today.AddMonths(6)),
-                Precio = contrato.Precio,  
+                Precio = contrato.Precio,
                 InquilinoId = contrato.InquilinoId,
                 IdInmueble = contrato.IdInmueble,
                 Estado = "Activo",

@@ -1,0 +1,48 @@
+@model ProyectoInmobiliaria.Models.Usuario
+
+@{
+    ViewData["Title"] = "Nuevo Usuario";
+}
+
+<div class="container mt-4">
+    <h2>Crear Usuario</h2>
+
+    <form asp-action="Crear" method="post">
+        <!-- Nombre -->
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input asp-for="Nombre" class="form-control" autocomplete="off" />
+        </div>
+
+        <!-- Apellido -->
+        <div class="mb-3">
+            <label class="form-label">Apellido</label>
+            <input asp-for="Apellido" class="form-control" autocomplete="off" />
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input asp-for="Email" type="email" class="form-control" autocomplete="off" />
+        </div>
+
+        <!-- Rol -->
+        <div class="mb-3">
+            <label class="form-label">Rol</label>
+            <select asp-for="Rol" class="form-control" autocomplete="off">
+                <option value="">-- Seleccione un rol --</option>
+                <option value="Administrador">Administrador</option>
+                <option value="Empleado">Empleado</option>
+            </select>
+        </div>
+
+        <!-- Contraseña -->
+        <div class="mb-3">
+            <label class="form-label">Contraseña</label>
+            <input type="password" name="password" class="form-control" autocomplete="new-password" />
+        </div>
+
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

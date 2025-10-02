@@ -3,9 +3,11 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using ProyectoInmobiliaria.Models;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ProyectoInmobiliaria.Controllers
 {
+    [Authorize]
     public class PagosController : Controller
     {
         private readonly IRepositorioPagos _repoPagos;
@@ -63,7 +65,7 @@ namespace ProyectoInmobiliaria.Controllers
             if (contrato == null)
                 return NotFound("No se encontró el Contrato asociado.");
 
-            ViewBag.InquilinoNombre = contrato.Inquilino != null ? 
+            ViewBag.InquilinoNombre = contrato.Inquilino != null ?
                 $"{contrato.Inquilino.Nombre} {contrato.Inquilino.Apellido}" : "No definido";
 
             ViewBag.PropietarioNombre = contrato.Inmueble?.Propietario != null ?
@@ -102,7 +104,7 @@ namespace ProyectoInmobiliaria.Controllers
 
             var pagosExistentes = _repoPagos.ObtenerPagosPorContrato(contratoId)?.Count(p => !p.Anulado) ?? 0;
 
-            bool contratoFinalizado = contrato.Estado == "Inactivo" || 
+            bool contratoFinalizado = contrato.Estado == "Inactivo" ||
                                     contrato.Estado == "Finalizado" ||
                                     (contrato.FechaAnticipada != null && contrato.FechaAnticipada < contrato.FechaFin) ||
                                     pagosExistentes >= 6;
@@ -131,7 +133,7 @@ namespace ProyectoInmobiliaria.Controllers
 
             var pagosExistentes = _repoPagos.ObtenerPagosPorContrato(pago.IdContrato)?.Count(p => !p.Anulado) ?? 0;
 
-            bool contratoFinalizado = contrato.Estado == "Inactivo" || 
+            bool contratoFinalizado = contrato.Estado == "Inactivo" ||
                                       contrato.Estado == "Finalizado" ||
                                       (contrato.FechaAnticipada != null && contrato.FechaAnticipada < contrato.FechaFin) ||
                                       pagosExistentes >= 6;
@@ -153,7 +155,7 @@ namespace ProyectoInmobiliaria.Controllers
 
             if (pagosExistentes >= 6)
             {
-                
+
                 _repoContratos.TerminarAnticipado(contrato.IdContrato, contrato.FechaFin, 0);
                 TempData["Mensaje"] = "Pago registrado correctamente. Se completaron los 6 pagos y el contrato ha sido finalizado.";
             }
@@ -170,7 +172,7 @@ namespace ProyectoInmobiliaria.Controllers
         public IActionResult FinalizarAnticipado(int contratoId)
         {
             var contrato = _repoContratos.ObtenerPorId(contratoId);
-            if (contrato == null) 
+            if (contrato == null)
                 return NotFound("Contrato no encontrado.");
 
             var pagosRegistrados = _repoPagos.ObtenerPagosPorContrato(contratoId)?.Count(p => !p.Anulado) ?? 0;
@@ -211,7 +213,7 @@ namespace ProyectoInmobiliaria.Controllers
 
             decimal multa = diasCumplidos < totalDias / 2 ? contrato.Precio * 2 : contrato.Precio;
 
-            
+
             _repoContratos.TerminarAnticipado(contrato.IdContrato, fechaAnticipadaDateOnly, multa);
 
             TempData["Mensaje"] = $"Contrato finalizado anticipadamente. Multa aplicada: {multa:C}";
@@ -226,7 +228,7 @@ namespace ProyectoInmobiliaria.Controllers
             if (pago == null) return NotFound();
 
             var contrato = _repoContratos.ObtenerPorId(pago.IdContrato);
-            bool contratoFinalizado = contrato.Estado == "Inactivo" || 
+            bool contratoFinalizado = contrato.Estado == "Inactivo" ||
                                       contrato.Estado == "Finalizado" ||
                                       (contrato.FechaAnticipada != null && contrato.FechaAnticipada < contrato.FechaFin);
 
@@ -246,7 +248,7 @@ namespace ProyectoInmobiliaria.Controllers
         public IActionResult Editar(int id, PagosModels pago)
         {
             var contrato = _repoContratos.ObtenerPorId(pago.IdContrato);
-            bool contratoFinalizado = contrato.Estado == "Inactivo" || 
+            bool contratoFinalizado = contrato.Estado == "Inactivo" ||
                                       contrato.Estado == "Finalizado" ||
                                       (contrato.FechaAnticipada != null && contrato.FechaAnticipada < contrato.FechaFin);
 
@@ -272,7 +274,7 @@ namespace ProyectoInmobiliaria.Controllers
             if (pago == null) return NotFound();
 
             var contrato = _repoContratos.ObtenerPorId(pago.IdContrato);
-            bool contratoFinalizado = contrato.Estado == "Inactivo" || 
+            bool contratoFinalizado = contrato.Estado == "Inactivo" ||
                                       contrato.Estado == "Finalizado" ||
                                       (contrato.FechaAnticipada != null && contrato.FechaAnticipada < contrato.FechaFin);
 

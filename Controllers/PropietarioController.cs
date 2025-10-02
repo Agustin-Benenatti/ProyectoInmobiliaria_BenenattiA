@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProyectoInmobiliaria.Models;
 
 namespace ProyectoInmobiliaria.Controllers
 {
+    [Authorize]
     public class PropietarioController : Controller
     {
         private readonly IRepositorioPropietario _repo;
@@ -18,9 +20,9 @@ namespace ProyectoInmobiliaria.Controllers
         }
 
         // GET: Propietario
-        public IActionResult Index(int pagina = 1) 
+        public IActionResult Index(int pagina = 1)
         {
-            int tamPag = 5; 
+            int tamPag = 5;
             IEnumerable<Propietario> lista;
 
             if (pagina <= 0)
@@ -95,6 +97,7 @@ namespace ProyectoInmobiliaria.Controllers
         }
 
         // GET: Propietario/Eliminar/5
+        [Authorize(Roles ="Administrador")]
         [HttpGet]
         public IActionResult Eliminar(int id)
         {
@@ -106,14 +109,15 @@ namespace ProyectoInmobiliaria.Controllers
         }
 
         // POST: Propietario/EliminarConfirmado
+        [Authorize(Roles ="Administrador")]
         [HttpPost, ActionName("EliminarConfirmado")]
         public IActionResult EliminarConfirmado(int id)
         {
             _repo.Baja(id);
             return RedirectToAction("Index");
         }
-        
 
-        
+
+
     }
 }

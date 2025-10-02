@@ -1,0 +1,61 @@
+@model ProyectoInmobiliaria.Models.Usuario
+
+@{
+    ViewData["Title"] = "Editar Perfil";
+}
+
+<div class="container mt-4">
+    <h2>Editar Perfil</h2>
+
+    @if (TempData["Msg"] != null)
+    {
+        <div class="alert alert-success">@TempData["Msg"]</div>
+    }
+
+    <form asp-action="EditarPerfil" method="post" enctype="multipart/form-data">
+        <!-- Nombre -->
+        <div class="mb-3">
+            <label asp-for="Nombre" class="form-label">Nombre</label>
+            <input asp-for="Nombre" class="form-control" />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+
+        <!-- Apellido -->
+        <div class="mb-3">
+            <label asp-for="Apellido" class="form-label">Apellido</label>
+            <input asp-for="Apellido" class="form-control" />
+            <span asp-validation-for="Apellido" class="text-danger"></span>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">Email</label>
+            <input asp-for="Email" type="email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <!-- Nueva Contraseña -->
+        <div class="mb-3">
+            <label class="form-label">Nueva Contraseña (opcional)</label>
+            <input type="password" name="nuevaClave" class="form-control" 
+                   placeholder="Dejar vacío para no cambiar" autocomplete="new-password" />
+            <small class="text-muted">Solo completa este campo si deseas cambiar tu contraseña.</small>
+        </div>
+
+        <!-- Avatar -->
+        <div class="mb-3">
+            <label class="form-label">Avatar</label><br />
+            @if (!string.IsNullOrEmpty(Model.Avatar))
+            {
+                <img src="@Model.Avatar" width="80" class="rounded-circle mb-2" />
+            }
+            <input type="file" name="nuevoAvatar" class="form-control" />
+            <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" name="eliminarAvatar" value="true" />
+                <label class="form-check-label">Eliminar avatar</label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    </form>
+</div>

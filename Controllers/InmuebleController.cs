@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ProyectoInmobiliaria.Models;
 
 namespace ProyectoInmobiliaria.Controllers
 {
+    [Authorize]
     public class InmuebleController : Controller
     {
         private readonly IRepositorioInmueble _repo;
@@ -101,6 +103,7 @@ namespace ProyectoInmobiliaria.Controllers
         }
 
         // GET: Inmueble/Eliminar
+        [Authorize(Roles ="Administrador")]
         public IActionResult Eliminar(int id)
         {
             var inmueble = _repo.ObtenerPorId(id);
@@ -118,6 +121,7 @@ namespace ProyectoInmobiliaria.Controllers
 
         // POST: Inmueble/EliminarConfirmado
         [HttpPost, ActionName("EliminarConfirmado")]
+        [Authorize(Roles ="Administrador")]
         [ValidateAntiForgeryToken]
         public IActionResult EliminarConfirmado(int id)
         {

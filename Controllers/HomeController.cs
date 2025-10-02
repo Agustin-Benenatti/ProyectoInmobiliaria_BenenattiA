@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ProyectoInmobiliaria.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ProyectoInmobiliaria.Controllers;
 
@@ -12,7 +13,7 @@ public class HomeController : Controller
     {
         _logger = logger;
     }
-
+    [Authorize]
     public IActionResult Index()
     {
         return View();
@@ -52,4 +53,12 @@ public class HomeController : Controller
 
         return View(model);
     }
+
+    [AllowAnonymous]
+    public IActionResult AccesoDenegado(string? returnUrl = null)
+    {
+        ViewBag.ReturnUrl = returnUrl; // URL que el usuario intentó acceder
+        return View();
+    }
+
 }

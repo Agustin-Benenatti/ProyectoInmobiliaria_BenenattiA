@@ -2,7 +2,36 @@
     ViewData["Title"] = "Home Page";
 }
 
+<style>
+    /* Estilos adaptables para modo oscuro y claro */
+    .welcome-card {
+        padding: 3rem;
+        border-radius: 1rem;
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+        transition: background-color 0.3s, color 0.3s;
+    }
 
-    <h1 class="display-4">Bienvenidos</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    body[data-bs-theme="dark"] .welcome-card {
+        background-color: #212529; /* bg-dark */
+        color: #f8f9fa; /* text-light */
+    }
 
+    body[data-bs-theme="light"] .welcome-card {
+        background-color: #f8f9fa; /* bg-light */
+        color: #212529; /* text-dark */
+    }
+
+    .welcome-btn {
+        min-width: 150px;
+    }
+
+    
+</style>
+
+<div class="container mt-5 text-center">
+    <!-- Bienvenida -->
+    <div class="welcome-card mx-auto text-center">
+        <h1 class="display-3 mb-3">Bienvenidos a Benenatti Inmobiliaria</h1>
+        <p class="lead mb-4">¡Tu gestión inmobiliaria, más fácil que nunca!</p>
+    </div>
+</div>

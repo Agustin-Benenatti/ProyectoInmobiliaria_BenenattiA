@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ProyectoInmobiliaria.Controllers
 {
-        [Authorize]
-        public class ContratoController : Controller
+    [Authorize]
+    public class ContratoController : Controller
     {
         private readonly IRepositorioContrato _repo;
         private readonly IRepositorioInquilino _repoInquilino;
@@ -175,7 +175,7 @@ namespace ProyectoInmobiliaria.Controllers
         }
 
         // GET: Contrato/Eliminar
-        [Authorize(Roles ="Administrador")]
+        [Authorize(Roles = "Administrador")]
         public IActionResult Eliminar(int id)
         {
             var contrato = _repo.ObtenerPorId(id);
@@ -185,7 +185,7 @@ namespace ProyectoInmobiliaria.Controllers
 
         // POST: Contrato/EliminarConfirmado
         [HttpPost, ActionName("EliminarConfirmado")]
-        [Authorize(Roles ="Administrador")]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public IActionResult EliminarConfirmado(int id)
         {
@@ -329,6 +329,29 @@ namespace ProyectoInmobiliaria.Controllers
 
             return View(contrato);
         }
+
+        // GET: Contrato/PorPlazo
+        public IActionResult PorPlazo(int? dias)
+        {
+            if (!dias.HasValue)
+            {
+                TempData["Error"] = "Debe seleccionar un plazo (30, 60 o 90 días).";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var lista = _repo.BuscarPorPlazo(dias.Value);
+
+            if (lista == null || !lista.Any())
+            {
+                TempData["Info"] = $"No se encontraron contratos que venzan en {dias.Value} días.";
+            }
+
+            // ✅ Guardamos como int normal para que la vista lo compare sin problemas
+            ViewBag.Dias = dias.Value;
+
+            return View("Index", lista); // Reutilizamos Index
+        }
+
 
     }
 }

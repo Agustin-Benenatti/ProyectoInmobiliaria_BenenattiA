@@ -1,4 +1,5 @@
 @model IEnumerable<ProyectoInmobiliaria.Models.Contrato>
+@using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
     var pagosPorContrato = ViewBag.PagosPorContrato as Dictionary<int, int> ?? new Dictionary<int, int>();
@@ -12,7 +13,54 @@
         <a asp-action="Crear" class="btn btn-success">Nuevo Contrato</a>
     </div>
 
-    <table class="table table-striped table-hover table-bordered shadow-sm rounded text-center">
+    <!-- FILTROS -->
+    <div class="mb-4">
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+        @if (TempData["Info"] != null)
+        {
+            <div class="alert alert-info">@TempData["Info"]</div>
+        }
+
+        <!-- FILTRO POR FECHAS -->
+        <form asp-action="Vigentes" method="get" class="row g-3 align-items-end mb-3">
+            <div class="col-md-4">
+                <label for="desde" class="form-label">Fecha Desde</label>
+                <input type="date" id="desde" name="desde" class="form-control" value="@ViewBag.Desde" />
+            </div>
+
+            <div class="col-md-4">
+                <label for="hasta" class="form-label">Fecha Hasta</label>
+                <input type="date" id="hasta" name="hasta" class="form-control" value="@ViewBag.Hasta" />
+            </div>
+
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <a asp-action="Index" class="btn btn-secondary">Limpiar</a>
+            </div>
+        </form>
+
+        <!-- FILTRO POR VENCIMIENTOS -->
+        <form asp-action="PorPlazo" method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="dias" class="form-label">Próximos Vencimientos</label>
+                <select id="dias" name="dias" class="form-select"
+                        asp-items="new SelectList(new[]{30,60,90}, ViewBag.Dias)">
+                    <option value="">Seleccione un plazo (30, 60 o 90 días)</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-warning">Ver Próximos Vencimientos</button>
+            </div>
+        </form>
+
+    </div>
+
+    <!-- TABLA DE CONTRATOS -->
+    <table class="table table-striped table-hover table-bordered shadow-sm rounded text-center align-middle">
         <thead class="table-dark">
             <tr>
                 <th>Fecha Inicio</th>
@@ -21,7 +69,6 @@
                 <th>Estado</th>
                 <th>Inquilino</th>
                 <th>Dirección Inmueble</th>
-                <th>Propietario</th>
                 <th style="min-width: 500px;">Acciones</th>
             </tr>
         </thead>
@@ -35,12 +82,15 @@
                 <td>@c.FechaInicio.ToString("dd/MM/yyyy")</td>
                 <td>@c.FechaFin.ToString("dd/MM/yyyy")</td>
                 <td>@c.Precio.ToString("C0")</td>
-                <td>@c.Estado</td>
+                <td>
+                    <span class="badge @(c.Estado == "Activo" ? "bg-success" : "bg-secondary")">
+                        @c.Estado
+                    </span>
+                </td>
                 <td>@c.Inquilino?.Nombre @c.Inquilino?.Apellido</td>
                 <td>@c.Inmueble?.Direccion</td>
-                <td>@c.Inmueble?.Propietario?.Nombre @c.Inmueble?.Propietario?.Apellido</td>
                 <td>
-                    <div class="btn-group" role="group">
+                    <div class="btn-group flex-wrap" role="group">
                         <a asp-action="Detalle" asp-route-id="@c.IdContrato" class="btn btn-sm btn-info text-white">Ver</a>
                         <a asp-action="Editar" asp-route-id="@c.IdContrato" class="btn btn-sm btn-warning text-dark">Editar</a>
                         <a asp-action="Eliminar" asp-route-id="@c.IdContrato" class="btn btn-sm btn-danger">Eliminar</a>
@@ -54,7 +104,6 @@
                             Terminar Anticipadamente
                         </button>
 
-                        @* Botón Renovar: habilitado solo si hay 6 pagos y contrato finalizado *@
                         @if (pagosRegistrados >= 6 && contratoFinalizado)
                         {
                             <a asp-action="Renovar" asp-route-id="@c.IdContrato" class="btn btn-sm btn-primary">Renovar</a>
@@ -70,7 +119,7 @@
         </tbody>
     </table>
 
-    @* PAGINADO *@
+    <!-- PAGINADO -->
     @if (totalPaginas > 1)
     {
         <nav aria-label="Page navigation">

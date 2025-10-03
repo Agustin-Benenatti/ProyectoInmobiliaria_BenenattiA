@@ -600,12 +600,129 @@ namespace ProyectoInmobiliaria.Models
                         command.Parameters.AddWithValue("@idContrato", idContrato.Value);
 
                     int count = Convert.ToInt32(command.ExecuteScalar());
-                    return count > 0; 
+                    return count > 0;
                 }
             }
         }
 
+        public IList<Contrato> BuscarVigentesEntreFechas(DateOnly desde, DateOnly hasta)
+        {
+            var lista = new List<Contrato>();
+
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                var sql = @"
+                    SELECT 
+                        c.IdContrato, c.FechaInicio, c.FechaFin, c.Precio, c.Estado,
+                        i.InquilinoId, i.Nombre AS NombreInquilino, i.Apellido AS ApellidoInquilino,
+                        im.IdInmueble, im.Direccion AS DireccionInmueble,
+                        p.PropietarioId, p.Nombre AS NombrePropietario, p.Apellido AS ApellidoPropietario
+                    FROM contratos c
+                    INNER JOIN inquilinos i ON c.InquilinoId = i.InquilinoId
+                    INNER JOIN inmuebles im ON c.IdInmueble = im.IdInmueble
+                    INNER JOIN propietarios p ON im.PropietarioId = p.PropietarioId
+                    WHERE c.Estado = 'Activo'
+                    AND c.FechaInicio <= @hasta
+                    AND c.FechaFin >= @desde";
+
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@desde", desde.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@hasta", hasta.ToString("yyyy-MM-dd"));
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var contrato = new Contrato
+                            {
+                                IdContrato = reader.GetInt32("IdContrato"),
+                                FechaInicio = DateOnly.FromDateTime(reader.GetDateTime("FechaInicio")),
+                                FechaFin = DateOnly.FromDateTime(reader.GetDateTime("FechaFin")),
+                                Precio = reader.GetDecimal("Precio"),
+                                Estado = reader.GetString("Estado"),
+                                Inquilino = new Inquilino
+                                {
+                                    InquilinoId = reader.GetInt32("InquilinoId"),
+                                    Nombre = reader.GetString("NombreInquilino"),
+                                    Apellido = reader.GetString("ApellidoInquilino")
+                                },
+                                Inmueble = new Inmueble
+                                {
+                                    IdInmueble = reader.GetInt32("IdInmueble"),
+                                    Direccion = reader.GetString("DireccionInmueble"),
+                                    Propietario = new Propietario
+                                    {
+                                        PropietarioId = reader.GetInt32("PropietarioId"),
+                                        Nombre = reader.GetString("NombrePropietario"),
+                                        Apellido = reader.GetString("ApellidoPropietario")
+                                    }
+                                }
+                            };
+
+                            lista.Add(contrato);
+                        }
+                    }
+                }
+            }
+
+            return lista;
+        }
+        
+        public IList<Contrato> BuscarPorPlazo(int dias)
+        {
+            var lista = new List<Contrato>();
+
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                var sql = @"
+                    SELECT 
+                        c.IdContrato, c.FechaInicio, c.FechaFin, c.Precio, c.Estado,
+                        i.InquilinoId, i.Nombre AS NombreInquilino, i.Apellido AS ApellidoInquilino,
+                        im.IdInmueble, im.Direccion AS DireccionInmueble
+                    FROM contratos c
+                    INNER JOIN inquilinos i ON c.InquilinoId = i.InquilinoId
+                    INNER JOIN inmuebles im ON c.IdInmueble = im.IdInmueble
+                    WHERE c.Estado = 'Activo'
+                    AND DATEDIFF(c.FechaFin, CURDATE()) = @dias";
+
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@dias", dias);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var contrato = new Contrato
+                            {
+                                IdContrato = reader.GetInt32("IdContrato"),
+                                FechaInicio = DateOnly.FromDateTime(reader.GetDateTime("FechaInicio")),
+                                FechaFin = DateOnly.FromDateTime(reader.GetDateTime("FechaFin")),
+                                Precio = reader.GetDecimal("Precio"),
+                                Estado = reader.GetString("Estado"),
+                                Inquilino = new Inquilino
+                                {
+                                    InquilinoId = reader.GetInt32("InquilinoId"),
+                                    Nombre = reader.GetString("NombreInquilino"),
+                                    Apellido = reader.GetString("ApellidoInquilino")
+                                },
+                                Inmueble = new Inmueble
+                                {
+                                    IdInmueble = reader.GetInt32("IdInmueble"),
+                                    Direccion = reader.GetString("DireccionInmueble")
+                                }
+                            };
+
+                            lista.Add(contrato);
+                        }
+                    }
+                }
+            }
+
+            return lista;
+        }
      }
-
-
 }

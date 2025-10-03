@@ -15,5 +15,7 @@ namespace ProyectoInmobiliaria.Models
         int ObtenerCantidad();
         int RenovarContrato(int idContrato);
         bool ExisteSolapamiento(int idInmueble, DateOnly inicio, DateOnly fin, int? idContrato = null);
+        IList<Contrato> BuscarVigentesEntreFechas(DateOnly desde, DateOnly hasta);
+        IList<Contrato> BuscarPorPlazo(int dias);
     }
 }

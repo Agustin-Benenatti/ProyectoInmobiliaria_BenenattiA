@@ -10,5 +10,9 @@ namespace ProyectoInmobiliaria.Models
         IList<Inmueble> BuscarPorPropietario(int idPropietario);
         bool InmuebleDisponible(int idInmueble);
         IList<Inmueble> ObtenerDisponibles();
+        IList<Inmueble> ObtenerNoDisponibles();
+        IList<Inmueble> ObtenerLista(int paginaNro, int tamPag);
+        int ObtenerCantidad();
+        IList<Inmueble> ObtenerDisponiblesPorFechas(DateOnly fechaInicio, DateOnly fechaFin);
     }
 }

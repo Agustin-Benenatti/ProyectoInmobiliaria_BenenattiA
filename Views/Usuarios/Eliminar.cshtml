@@ -4,21 +4,36 @@
     ViewData["Title"] = "Eliminar Usuario";
 }
 
-<div class="container mt-4">
-    <h2>¿Seguro que desea eliminar este usuario?</h2>
+<div class="container mt-5">
+    <div class="card shadow-lg border-danger">
+        <div class="card-header bg-danger text-white">
+            <h3 class="mb-0"><i class="bi bi-exclamation-triangle-fill"></i> Confirmar eliminación</h3>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <strong>Atención:</strong> Esta acción eliminará permanentemente el usuario del sistema.
+            </div>
 
-    <dl class="row">
-        <dt class="col-sm-2">Email</dt>
-        <dd class="col-sm-10">@Model.Email</dd>
-        <dt class="col-sm-2">Nombre</dt>
-        <dd class="col-sm-10">@Model.Nombre @Model.Apellido</dd>
-        <dt class="col-sm-2">Rol</dt>
-        <dd class="col-sm-10">@Model.Rol</dd>
-    </dl>
+            <dl class="row">
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+                <dt class="col-sm-3">Nombre</dt>
+                <dd class="col-sm-9">@Model.Nombre @Model.Apellido</dd>
+                <dt class="col-sm-3">Rol</dt>
+                <dd class="col-sm-9">@Model.Rol</dd>
+            </dl>
 
-    <form asp-action="DeleteConfirmed" method="post">
-        <input type="hidden" asp-for="IdUsuario" />
-        <button type="submit" class="btn btn-danger">Eliminar</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-    </form>
+            <form asp-action="Eliminar" method="post" class="mt-4">
+                <input type="hidden" asp-for="IdUsuario" />
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left-circle"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

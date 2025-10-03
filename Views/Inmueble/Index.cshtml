@@ -1,67 +1,153 @@
 @model IEnumerable<ProyectoInmobiliaria.Models.Inmueble>
 
+@{
+    ViewData["Title"] = "Lista de Inmuebles";
+    int pagina = ViewBag.Pagina ?? 0;
+    int totalPaginas = ViewBag.TotalPaginas ?? 0;
+}
+
 <div class="container mt-4">
+
+    <!--Encabezado y filtro -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Lista de Inmuebles</h2>
-        <a asp-action="Crear" class="btn btn-success">
-            Nuevo Inmueble
-        </a>
+
+        <div class="d-flex align-items-center">
+            <!-- Formulario de filtro -->
+            <form asp-action="Index" method="get" class="d-flex me-2">
+                <select name="estado" class="form-select me-2" onchange="this.form.submit()">
+                    <option value="" selected="@(string.IsNullOrEmpty(ViewBag.EstadoSeleccionado) ? "selected" : null)">Todos</option>
+                    <option value="Disponible" selected="@(ViewBag.EstadoSeleccionado == "Disponible" ? "selected" : null)">Disponible</option>
+                    <option value="No Disponible" selected="@(ViewBag.EstadoSeleccionado == "No Disponible" ? "selected" : null)">No Disponible</option>
+                </select>
+            </form>
+
+            <!--Boton crear -->
+            <a asp-action="Crear" class="btn btn-success">Nuevo Inmueble</a>
+        </div>
     </div>
 
-    <table class="table table-striped table-hover table-bordered shadow-sm rounded">
+    <!--Tabla -->
+    <table class="table table-striped table-hover table-bordered shadow-sm rounded align-middle text-center">
         <thead class="table-dark">
             <tr>
-                <th>Dirección</th>
+                <th class="text-start">Dirección</th>
                 <th>Tipo</th>
                 <th>Ambientes</th>
                 <th>Superficie (m²)</th>
                 <th>Precio</th>
-                <th>Propietario</th>
+                <th class="text-start">Propietario</th>
+                <th>Estado</th>
                 <th>Portada</th>
-                <th class="text-center">Acciones</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-        @foreach (var i in Model)
-        {
-            <tr>
-                <td>@i.Direccion</td>
-                <td>@i.TipoInmueble</td>
-                <td>@i.Ambientes</td>
-                <td>@i.Superficie</td>
-                <td>@i.Precio?.ToString("C")</td>
-                <td>@i.Propietario?.Nombre @i.Propietario?.Apellido</td>
-                <td class="text-center">
-                    @if (!string.IsNullOrEmpty(i.PortadaUrl))
-                    {
-                        <img src="@i.PortadaUrl"
-                             onerror="this.onerror=null; this.src='/images/no-image.png';"
-                             class="img-thumbnail"
-                             style="max-width: 60px; max-height: 60px;" />
-                    }
-                    else
-                    {
-                        <img src="/images/no-image.png"
-                             class="img-thumbnail"
-                             style="max-width: 60px; max-height: 60px;" />
-                    }
-                </td>
-                <td class="text-center">
-                    <a asp-action="Detalle" asp-route-id="@i.IdInmueble" class="btn btn-sm btn-info text-white me-1">
-                        Ver
-                    </a>
-                    <a asp-action="Editar" asp-route-id="@i.IdInmueble" class="btn btn-sm btn-warning text-dark me-1">
-                        Editar
-                    </a>
-                    <a asp-action="Eliminar" asp-route-id="@i.IdInmueble" class="btn btn-sm btn-danger me-1">
-                        Eliminar
-                    </a>
-                    <a asp-action="Imagenes" asp-route-id="@i.IdInmueble" class="btn btn-sm btn-secondary">
-                        Imágenes
-                    </a>
-                </td>
-            </tr>
-        }
+            @foreach (var i in Model)
+            {
+                <tr>
+                    <td class="text-start">@i.Direccion</td>
+                    <td>@i.TipoInmueble</td>
+                    <td>@i.Ambientes</td>
+                    <td>@i.Superficie</td>
+                    <td>@i.Precio?.ToString("C")</td>
+                    <td class="text-start">@i.Propietario?.Nombre @i.Propietario?.Apellido</td>
+                    <td>@i.Estado</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(i.PortadaUrl))
+                        {
+                            <img src="@i.PortadaUrl" 
+                                 onerror="this.onerror=null; this.src='/images/no-image.png';"
+                                 class="img-thumbnail" style="width:60px; height:60px; object-fit:cover;" />
+                        }
+                        else
+                        {
+                            <img src="/images/no-image.png" class="img-thumbnail" style="width:60px; height:60px; object-fit:cover;" />
+                        }
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a asp-action="Detalle" asp-route-id="@i.IdInmueble" class="btn btn-sm btn-outline-info" title="Ver">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a asp-action="Editar" asp-route-id="@i.IdInmueble" class="btn btn-sm btn-outline-warning" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#confirmDeleteModal"
+                                    data-id="@i.IdInmueble"
+                                    data-nombre="@i.Direccion">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            <a asp-action="Imagenes" asp-route-id="@i.IdInmueble" class="btn btn-sm btn-outline-secondary" title="Imágenes">
+                                <i class="bi bi-image"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
+
+    <!--PAGINADO -->
+    @if (pagina > 0 && totalPaginas > 1)
+    {
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(pagina <= 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-pagina="@(pagina - 1)" asp-route-estado="@ViewBag.EstadoSeleccionado">Anterior</a>
+                </li>
+
+                @for (int i = 1; i <= totalPaginas; i++)
+                {
+                    <li class="page-item @(i == pagina ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pagina="@i" asp-route-estado="@ViewBag.EstadoSeleccionado">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(pagina >= totalPaginas ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-pagina="@(pagina + 1)" asp-route-estado="@ViewBag.EstadoSeleccionado">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    }
 </div>
+
+<!-- Modal de Confirmacion -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmDeleteLabel">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro que deseas eliminar el inmueble 
+                <strong id="deleteItemName"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <a id="confirmDeleteBtn" class="btn btn-danger">Eliminar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var confirmModal = document.getElementById('confirmDeleteModal');
+        confirmModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var id = button.getAttribute('data-id');
+            var nombre = button.getAttribute('data-nombre');
+
+            var itemName = confirmModal.querySelector('#deleteItemName');
+            itemName.textContent = nombre;
+
+            var confirmBtn = confirmModal.querySelector('#confirmDeleteBtn');
+            confirmBtn.href = '/Inmueble/Eliminar/' + id; 
+        });
+    </script>
+}

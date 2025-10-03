@@ -142,7 +142,7 @@ namespace ProyectoInmobiliaria.Controllers
 
             _repo.Modificacion(usuario);
 
-            // 🔄 Regenerar claims para que se vea en el layout sin cerrar sesión
+            
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, usuario.Email ?? ""),
@@ -159,20 +159,20 @@ namespace ProyectoInmobiliaria.Controllers
             return RedirectToAction("EditarPerfil");
         }
 
-        // GET: /Usuarios/Delete/5
+        // GET: /Usuarios/Eliminar/5
         [Authorize(Roles = "Administrador")]
-        public IActionResult Delete(int id)
+        public IActionResult Eliminar(int id)
         {
             var usuario = _repo.ObtenerPorId(id);
             if (usuario == null) return NotFound();
             return View(usuario);
         }
 
-        // POST: /Usuarios/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: /Usuarios/Eliminar/5
+        [HttpPost, ActionName("Eliminar")]
         [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public IActionResult EliminarConfirmado(int id)
         {
             _repo.Baja(id);
             return RedirectToAction(nameof(Index));

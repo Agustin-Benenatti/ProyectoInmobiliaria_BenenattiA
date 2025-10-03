@@ -22,9 +22,44 @@ namespace ProyectoInmobiliaria.Controllers
         }
 
         // GET: Inmueble
-        public IActionResult Index()
+        public IActionResult Index(int pagina = 1, string estado = "")
         {
-            var lista = _repo.ObtenerTodos();
+            int tamPag = 5;
+            IEnumerable<Inmueble> lista;
+            int total = 0;
+
+            ViewBag.EstadoSeleccionado = estado; // Mantener la opción seleccionada en la vista
+
+            if (string.IsNullOrEmpty(estado))
+            {
+                // Todos los inmuebles
+                lista = _repo.ObtenerLista(pagina, tamPag);
+                total = _repo.ObtenerCantidad();
+            }
+            else if (estado == "Disponible")
+            {
+                // Solo disponibles (filtrados por Estado en la BD)
+                var disponibles = _repo.ObtenerDisponibles();
+                total = disponibles.Count;
+                lista = disponibles.Skip((pagina - 1) * tamPag).Take(tamPag).ToList();
+            }
+            else if (estado == "No Disponible")
+            {
+                // Solo no disponibles (filtrados por Estado en la BD)
+                var noDisponibles = _repo.ObtenerNoDisponibles();
+                total = noDisponibles.Count;
+                lista = noDisponibles.Skip((pagina - 1) * tamPag).Take(tamPag).ToList();
+            }
+            else
+            {
+                // Por si viene otro valor inesperado → mostrar todos
+                lista = _repo.ObtenerLista(pagina, tamPag);
+                total = _repo.ObtenerCantidad();
+            }
+
+            ViewBag.Pagina = pagina;
+            ViewBag.TotalPaginas = (int)Math.Ceiling((double)total / tamPag);
+
             return View(lista);
         }
 

@@ -26,8 +26,7 @@
                             <select asp-for="Estado" class="form-select">
                                 <option value="">Seleccione el estado</option>
                                 <option value="Disponible">Disponible</option>
-                                <option value="Alquilado">Alquilado</option>
-                                <option value="Reservado">Reservado</option>
+                                <option value="No Disponible">No Disponible</option>
                             </select>
                             <span asp-validation-for="Estado" class="text-danger small"></span>
                         </div>
@@ -44,17 +43,9 @@
                             <span asp-validation-for="Superficie" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Longitud" class="form-label fw-bold"></label>
-                            <input asp-for="Longitud" class="form-control" placeholder="Ingrese la longitud" />
-                            <span asp-validation-for="Longitud" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Latitud" class="form-label fw-bold"></label>
-                            <input asp-for="Latitud" class="form-control" placeholder="Ingrese la latitud" />
-                            <span asp-validation-for="Latitud" class="text-danger small"></span>
-                        </div>
+                        <!-- Campos ocultos para Longitud y Latitud con valores por defecto -->
+                        <input asp-for="Longitud" type="hidden" value="120" />
+                        <input asp-for="Latitud" type="hidden" value="90" />
 
                         <div class="mb-3">
                             <label asp-for="Precio" class="form-label fw-bold"></label>
@@ -80,5 +71,3 @@
         </div>
     </div>
 </div>
-
-

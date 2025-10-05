@@ -1,0 +1,82 @@
+@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Auditoría";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">
+                <i class="bi bi-clipboard-data me-2"></i>Registros de Auditoría
+            </h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Entidad</th>
+                            <th>Acción</th>
+                            <th>Fecha y Hora</th>
+                            <th>Usuario</th>
+                            <th>Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Entidad</td>
+                                    <td>
+                                        <span class="badge bg-info text-dark">@item.Accion</span>
+                                    </td>
+                                    <td>@item.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        <i class="bi bi-person-circle me-1 text-secondary"></i>
+                                        @item.UsuarioNombre
+                                    </td>
+                                    <td>@item.Detalle</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    <i class="bi bi-exclamation-circle me-2"></i>No hay registros disponibles.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @* Paginado *@
+            @if (ViewBag.TotalPaginas > 1)
+            {
+                <nav aria-label="Paginación auditoría">
+                    <ul class="pagination justify-content-center mt-3">
+                        <li class="page-item @(ViewBag.Page == 1 ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Page - 1, entidad = ViewBag.Entidad, entidadId = ViewBag.EntidadId })" tabindex="-1">Anterior</a>
+                        </li>
+
+                        @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
+                        {
+                            <li class="page-item @(ViewBag.Page == i ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { page = i, entidad = ViewBag.Entidad, entidadId = ViewBag.EntidadId })">@i</a>
+                            </li>
+                        }
+
+                        <li class="page-item @(ViewBag.Page == ViewBag.TotalPaginas ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Page + 1, entidad = ViewBag.Entidad, entidadId = ViewBag.EntidadId })">Siguiente</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>
+

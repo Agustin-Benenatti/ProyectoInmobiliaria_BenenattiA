@@ -70,7 +70,11 @@ namespace ProyectoInmobiliaria.Controllers
         [Authorize]
         public async Task<IActionResult> Logout()
         {
+            // Cierra la sesión (invalida cookie de autenticación)
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Elimina explícitamente la cookie de autenticación en el navegador
+            Response.Cookies.Delete(".AspNetCore.Cookies");
             return RedirectToAction("Login");
         }
 

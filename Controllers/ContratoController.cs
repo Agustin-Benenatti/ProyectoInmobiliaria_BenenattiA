@@ -16,16 +16,19 @@ namespace ProyectoInmobiliaria.Controllers
         private readonly IRepositorioInquilino _repoInquilino;
         private readonly IRepositorioInmueble _repoInmueble;
         private readonly IRepositorioPagos _repoPagos;
+        private readonly IRepositorioAuditoria _repoAuditoria;
 
         public ContratoController(IRepositorioContrato repo,
                                   IRepositorioInquilino repoInquilino,
                                   IRepositorioInmueble repoInmueble,
-                                  IRepositorioPagos repoPagos)
+                                  IRepositorioPagos repoPagos,
+                                  IRepositorioAuditoria repoAuditoria)
         {
             _repo = repo;
             _repoInquilino = repoInquilino;
             _repoInmueble = repoInmueble;
             _repoPagos = repoPagos;
+            _repoAuditoria = repoAuditoria;
         }
 
         // GET: Contrato
@@ -105,6 +108,10 @@ namespace ProyectoInmobiliaria.Controllers
                 {
                     contrato.Estado = "Activo";
                     _repo.Alta(contrato);
+
+                    //Registrar la auditoria
+                    var usuarioId = int.Parse(User.Claims.First(c => c.Type == "IdUsuario").Value);
+                    RegistrarAuditoria(usuarioId, "Contrato", contrato.IdContrato, "Creación", $"Contrato creado por {User.Identity?.Name}");
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -160,6 +167,10 @@ namespace ProyectoInmobiliaria.Controllers
                     contrato.FechaFin = contrato.FechaInicio.AddMonths(6);
 
                 _repo.Modificacion(contrato);
+
+                //Registrar la auditoria 
+                var usuarioId = int.Parse(User.Claims.First(c => c.Type == "IdUsuario").Value);
+                RegistrarAuditoria(usuarioId, "Contrato", contrato.IdContrato, "Edición", $"Contrato editado por {User.Identity?.Name}");
                 return RedirectToAction(nameof(Index));
             }
 
@@ -190,6 +201,10 @@ namespace ProyectoInmobiliaria.Controllers
         public IActionResult EliminarConfirmado(int id)
         {
             _repo.Baja(id);
+
+            // Registrar la auditoria
+            var usuarioId = int.Parse(User.Claims.First(c => c.Type == "IdUsuario").Value);
+            RegistrarAuditoria(usuarioId, "Contrato", id, "Eliminación", $"Contrato eliminado por {User.Identity?.Name}");
             return RedirectToAction(nameof(Index));
         }
 
@@ -242,6 +257,10 @@ namespace ProyectoInmobiliaria.Controllers
 
 
             _repo.TerminarAnticipado(contrato.IdContrato, fechaAnticipada, multa);
+
+            //Registrar auditoria
+            var usuarioId = int.Parse(User.Claims.First(c => c.Type == "IdUsuario").Value);
+            RegistrarAuditoria(usuarioId, "Contrato", contrato.IdContrato, "Finalización Anticipada", $"Contrato terminado anticipadamente por {User.Identity?.Name}, multa: {multa:C}");
 
             // Registrar pago de multa si aplica
             if (multa > 0)
@@ -346,12 +365,62 @@ namespace ProyectoInmobiliaria.Controllers
                 TempData["Info"] = $"No se encontraron contratos que venzan en {dias.Value} días.";
             }
 
-            // ✅ Guardamos como int normal para que la vista lo compare sin problemas
+            //Guardamos como int normal para que la vista lo compare sin problemas
             ViewBag.Dias = dias.Value;
 
             return View("Index", lista); // Reutilizamos Index
         }
 
+        // GET: Contrato/Vigentes
+        public IActionResult Vigentes(DateTime? desde, DateTime? hasta)
+        {
+            if (!desde.HasValue || !hasta.HasValue)
+            {
+                TempData["Error"] = "Debe seleccionar ambas fechas.";
+                return RedirectToAction(nameof(Index));
+            }
 
-    }
-}
+            // Convertimos DateTime a DateOnly (tu repositorio usa DateOnly)
+            var desdeDateOnly = DateOnly.FromDateTime(desde.Value);
+            var hastaDateOnly = DateOnly.FromDateTime(hasta.Value);
+
+            var lista = _repo.BuscarVigentesEntreFechas(desdeDateOnly, hastaDateOnly);
+
+            if (lista == null || !lista.Any())
+            {
+                TempData["Info"] = $"No se encontraron contratos vigentes entre {desdeDateOnly:dd/MM/yyyy} y {hastaDateOnly:dd/MM/yyyy}.";
+            }
+
+            // Pasar valores a la vista para mantener el filtro
+            ViewBag.Desde = desdeDateOnly.ToString("yyyy-MM-dd");
+            ViewBag.Hasta = hastaDateOnly.ToString("yyyy-MM-dd");
+
+            return View("Index", lista); // reutilizamos Index
+        }
+
+
+        private void RegistrarAuditoria(int usuarioId, string entidad, int entidadId, string accion, string? detalle = null)
+        {
+            try
+            {
+                _repoAuditoria.Alta(new AuditoriaModel
+                {
+                    Entidad = entidad,
+                    EntidadId = entidadId,
+                    Accion = accion,
+                    UsuarioId = usuarioId, 
+                    Fecha = DateTime.Now,
+                    Detalle = detalle
+                });
+            }
+            catch (Exception ex)
+            {
+                
+                Console.WriteLine("Error al registrar auditoría: " + ex.Message);
+            }
+        }
+        
+     }
+
+ }
+

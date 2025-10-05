@@ -36,7 +36,6 @@ namespace ProyectoInmobiliaria.Models
         public Inmueble? Inmueble { get; set; }
 
         public decimal? Multa { get; set; }
-        
         public DateOnly? FechaAnticipada { get; set; }
     }
 }

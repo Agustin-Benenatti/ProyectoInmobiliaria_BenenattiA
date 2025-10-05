@@ -36,12 +36,7 @@ namespace ProyectoInmobiliaria.Models
 
                 }
 
-                var sqlUpdateInmueble = @"UPDATE inmuebles SET Estado ='Alquilado' WHERE IdInmueble = @inmuebleId";
-                using (var commandUpdate = new MySqlCommand(sqlUpdateInmueble, connection))
-                {
-                    commandUpdate.Parameters.AddWithValue("@InmuebleId", c.IdInmueble);
-                    commandUpdate.ExecuteNonQuery();
-                }
+               
             }
             return res;
         }
@@ -73,16 +68,6 @@ namespace ProyectoInmobiliaria.Models
                     res = commandDelete.ExecuteNonQuery();
                 }
 
-
-                if (res > 0 && idInmueble != -1)
-                {
-                    var sqlUpdate = "UPDATE inmuebles SET Estado = 'Disponible' WHERE IdInmueble = @idInmueble";
-                    using (var commandUpdate = new MySqlCommand(sqlUpdate, connection))
-                    {
-                        commandUpdate.Parameters.AddWithValue("@idInmueble", idInmueble);
-                        commandUpdate.ExecuteNonQuery();
-                    }
-                }
             }
 
             return res;
@@ -669,7 +654,7 @@ namespace ProyectoInmobiliaria.Models
 
             return lista;
         }
-        
+
         public IList<Contrato> BuscarPorPlazo(int dias)
         {
             var lista = new List<Contrato>();
@@ -724,5 +709,7 @@ namespace ProyectoInmobiliaria.Models
 
             return lista;
         }
+        
+     
      }
 }

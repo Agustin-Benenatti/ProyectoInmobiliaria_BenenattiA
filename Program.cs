@@ -14,6 +14,7 @@ builder.Services.AddScoped<IRepositorioContrato, RepositorioContrato>();
 builder.Services.AddScoped<IRepositorioImagen, RepositorioImagen>();
 builder.Services.AddScoped<IRepositorioPagos, RepositorioPagos>();
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
+builder.Services.AddScoped<IRepositorioAuditoria, RepositorioAuditoria>();
 
 // Configuración de autenticación con cookies
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -22,6 +23,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Usuarios/Login";            // si no está logueado, va acá
         options.LogoutPath = "/Usuarios/Logout";          // ruta para cerrar sesión
         options.AccessDeniedPath = "/Home/AccesoDenegado";   // si no tiene permisos
+
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // la sesión dura 30 min
+        options.SlidingExpiration = true;
     });
 
 

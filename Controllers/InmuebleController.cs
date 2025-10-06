@@ -22,43 +22,42 @@ namespace ProyectoInmobiliaria.Controllers
         }
 
         // GET: Inmueble
-        public IActionResult Index(int pagina = 1, string estado = "")
+        public IActionResult Index(int pagina = 1, string estado = "", string tipo = "")
         {
             int tamPag = 5;
             IEnumerable<Inmueble> lista;
             int total = 0;
 
-            ViewBag.EstadoSeleccionado = estado; // Mantener la opción seleccionada en la vista
+            ViewBag.EstadoSeleccionado = estado;
+            ViewBag.TipoSeleccionado = tipo;
 
-            if (string.IsNullOrEmpty(estado))
+            var inmuebles = _repo.ObtenerTodos().AsEnumerable();
+
+            // Filtro por estado
+            if (!string.IsNullOrEmpty(estado))
             {
-                // Todos los inmuebles
-                lista = _repo.ObtenerLista(pagina, tamPag);
-                total = _repo.ObtenerCantidad();
+                inmuebles = inmuebles.Where(i => i.Estado == estado);
             }
-            else if (estado == "Disponible")
+
+            // Filtro por tipo
+            if (!string.IsNullOrEmpty(tipo))
             {
-                // Solo disponibles (filtrados por Estado en la BD)
-                var disponibles = _repo.ObtenerDisponibles();
-                total = disponibles.Count;
-                lista = disponibles.Skip((pagina - 1) * tamPag).Take(tamPag).ToList();
+                inmuebles = inmuebles.Where(i => i.TipoInmueble == tipo);
             }
-            else if (estado == "No Disponible")
-            {
-                // Solo no disponibles (filtrados por Estado en la BD)
-                var noDisponibles = _repo.ObtenerNoDisponibles();
-                total = noDisponibles.Count;
-                lista = noDisponibles.Skip((pagina - 1) * tamPag).Take(tamPag).ToList();
-            }
-            else
-            {
-                // Por si viene otro valor inesperado → mostrar todos
-                lista = _repo.ObtenerLista(pagina, tamPag);
-                total = _repo.ObtenerCantidad();
-            }
+
+            // Paginación
+            total = inmuebles.Count();
+            lista = inmuebles.Skip((pagina - 1) * tamPag).Take(tamPag).ToList();
 
             ViewBag.Pagina = pagina;
             ViewBag.TotalPaginas = (int)Math.Ceiling((double)total / tamPag);
+
+            
+            ViewBag.Tipos = _repo.ObtenerTodos()
+                                .Select(i => i.TipoInmueble)
+                                .Distinct()
+                                .OrderBy(t => t)
+                                .ToList();
 
             return View(lista);
         }

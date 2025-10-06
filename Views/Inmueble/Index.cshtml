@@ -15,10 +15,20 @@
         <div class="d-flex align-items-center">
             <!-- Formulario de filtro -->
             <form asp-action="Index" method="get" class="d-flex me-2">
+                <!-- Filtro por estado -->
                 <select name="estado" class="form-select me-2" onchange="this.form.submit()">
                     <option value="" selected="@(string.IsNullOrEmpty(ViewBag.EstadoSeleccionado) ? "selected" : null)">Todos</option>
                     <option value="Disponible" selected="@(ViewBag.EstadoSeleccionado == "Disponible" ? "selected" : null)">Disponible</option>
                     <option value="No Disponible" selected="@(ViewBag.EstadoSeleccionado == "No Disponible" ? "selected" : null)">No Disponible</option>
+                </select>
+
+                <!-- Filtro por tipo -->
+                <select name="tipo" class="form-select me-2" onchange="this.form.submit()">
+                    <option value="" selected="@(string.IsNullOrEmpty(ViewBag.TipoSeleccionado) ? "selected" : null)">Todos los tipos</option>
+                    @foreach (var tipo in ViewBag.Tipos as List<string> ?? new List<string>())
+                    {
+                        <option value="@tipo" selected="@(ViewBag.TipoSeleccionado == tipo ? "selected" : null)">@tipo</option>
+                    }
                 </select>
             </form>
 
@@ -97,18 +107,27 @@
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
                 <li class="page-item @(pagina <= 1 ? "disabled" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-pagina="@(pagina - 1)" asp-route-estado="@ViewBag.EstadoSeleccionado">Anterior</a>
+                    <a class="page-link" asp-action="Index" 
+                       asp-route-pagina="@(pagina - 1)" 
+                       asp-route-estado="@ViewBag.EstadoSeleccionado"
+                       asp-route-tipo="@ViewBag.TipoSeleccionado">Anterior</a>
                 </li>
 
                 @for (int i = 1; i <= totalPaginas; i++)
                 {
                     <li class="page-item @(i == pagina ? "active" : "")">
-                        <a class="page-link" asp-action="Index" asp-route-pagina="@i" asp-route-estado="@ViewBag.EstadoSeleccionado">@i</a>
+                        <a class="page-link" asp-action="Index" 
+                           asp-route-pagina="@i" 
+                           asp-route-estado="@ViewBag.EstadoSeleccionado"
+                           asp-route-tipo="@ViewBag.TipoSeleccionado">@i</a>
                     </li>
                 }
 
                 <li class="page-item @(pagina >= totalPaginas ? "disabled" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-pagina="@(pagina + 1)" asp-route-estado="@ViewBag.EstadoSeleccionado">Siguiente</a>
+                    <a class="page-link" asp-action="Index" 
+                       asp-route-pagina="@(pagina + 1)" 
+                       asp-route-estado="@ViewBag.EstadoSeleccionado"
+                       asp-route-tipo="@ViewBag.TipoSeleccionado">Siguiente</a>
                 </li>
             </ul>
         </nav>

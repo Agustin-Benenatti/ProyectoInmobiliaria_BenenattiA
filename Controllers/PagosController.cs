@@ -14,17 +14,21 @@ namespace ProyectoInmobiliaria.Controllers
         private readonly IRepositorioContrato _repoContratos;
         private readonly IRepositorioPropietario _repoPropietarios;
         private readonly IRepositorioInquilino _repoInquilinos;
+        private readonly IRepositorioAuditoria _repoAuditoria;
+
 
         public PagosController(
             IRepositorioPagos repoPagos,
             IRepositorioContrato repoContratos,
             IRepositorioPropietario repoPropietarios,
-            IRepositorioInquilino repoInquilinos)
+            IRepositorioInquilino repoInquilinos,
+            IRepositorioAuditoria repoAuditoria)
         {
             _repoPagos = repoPagos;
             _repoContratos = repoContratos;
             _repoPropietarios = repoPropietarios;
             _repoInquilinos = repoInquilinos;
+            _repoAuditoria = repoAuditoria;
         }
 
         // GET: Pagos
@@ -151,6 +155,11 @@ namespace ProyectoInmobiliaria.Controllers
             }
 
             _repoPagos.Alta(pago);
+
+            // Registrar la auditoria
+            var usuarioId = int.Parse(User.Claims.First(c => c.Type == "IdUsuario").Value);
+            RegistrarAuditoria(usuarioId, "Pago", pago.IdPago, "Creación", $"Pago registrado por {User.Identity?.Name}");
+
             pagosExistentes++;
 
             if (pagosExistentes >= 6)
@@ -216,6 +225,16 @@ namespace ProyectoInmobiliaria.Controllers
 
             _repoContratos.TerminarAnticipado(contrato.IdContrato, fechaAnticipadaDateOnly, multa);
 
+            try
+            {
+                var usuarioId = int.Parse(User.Claims.First(c => c.Type == "IdUsuario").Value);
+                RegistrarAuditoria(usuarioId, "Contrato", contrato.IdContrato, "Finalización Anticipada",$"Contrato finalizado anticipadamente por {User.Identity?.Name}, multa: {multa:C}");
+            }
+            catch(Exception ex)
+            {  
+                Console.WriteLine("Error en FinalizarAnticipado: " + ex.Message);
+            }
+
             TempData["Mensaje"] = $"Contrato finalizado anticipadamente. Multa aplicada: {multa:C}";
             return RedirectToAction("Index", new { contratoId });
         }
@@ -262,6 +281,11 @@ namespace ProyectoInmobiliaria.Controllers
             if (!ModelState.IsValid) return View(pago);
 
             _repoPagos.Modificacion(pago);
+
+            // Registrar la auditoria
+            var usuarioId = int.Parse(User.Claims.First(c => c.Type == "IdUsuario").Value);
+            RegistrarAuditoria(usuarioId, "Pago", pago.IdPago, "Edición", $"Pago editado por {User.Identity?.Name}");
+
             TempData["Mensaje"] = "Pago editado correctamente.";
             return RedirectToAction(nameof(Index), new { contratoId = pago.IdContrato });
         }
@@ -300,6 +324,10 @@ namespace ProyectoInmobiliaria.Controllers
 
             _repoPagos.AnularPago(id);
 
+            // Registrar la auditoria
+            var usuarioId = int.Parse(User.Claims.First(c => c.Type == "IdUsuario").Value);
+            RegistrarAuditoria(usuarioId, "Pago", pago.IdPago, "Anulación", $"Pago anulado por {User.Identity?.Name}");
+
             var contratoOriginal = _repoContratos.ObtenerPorId(pago.IdContrato);
             if (contratoOriginal != null)
             {
@@ -315,6 +343,26 @@ namespace ProyectoInmobiliaria.Controllers
 
             TempData["Mensaje"] = "Pago anulado correctamente.";
             return RedirectToAction(nameof(Index), new { contratoId = pago.IdContrato });
+        }
+
+        private void RegistrarAuditoria(int usuarioId, string entidad, int entidadId, string accion, string? detalle = null)
+        {
+            try
+            {
+                _repoAuditoria.Alta(new AuditoriaModel
+                {
+                    Entidad = entidad,
+                    EntidadId = entidadId,
+                    Accion = accion,
+                    UsuarioId = usuarioId,
+                    Fecha = DateTime.Now,
+                    Detalle = detalle
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al registrar auditoría: " + ex.Message);
+            }
         }
     }
 }

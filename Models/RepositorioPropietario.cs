@@ -258,6 +258,39 @@ namespace ProyectoInmobiliaria.Models
             }
             return lista;
         }
+
+        public Propietario? ObtenerPorDni(string dni)
+        {
+            Propietario? propietario = null;
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                var sql = @"SELECT PropietarioId, Nombre, Apellido, Dni, Email, Telefono
+                            FROM Propietarios
+                            WHERE Dni = @dni";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@dni", dni);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            propietario = new Propietario
+                            {
+                                PropietarioId = reader.GetInt32("PropietarioId"),
+                                Nombre = reader.GetString("Nombre"),
+                                Apellido = reader.GetString("Apellido"),
+                                Dni = reader.GetString("Dni"),
+                                Email = reader.GetString("Email"),
+                                Telefono = reader.GetString("Telefono")
+                            };
+                        }
+                    }
+                }
+            }
+            return propietario;
+        }
+
     }
 
    

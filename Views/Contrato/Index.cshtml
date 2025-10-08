@@ -17,11 +17,11 @@
     <div class="mb-4">
         @if (TempData["Error"] != null)
         {
-            <div class="alert alert-danger">@TempData["Error"]</div>
+           // <div class="alert alert-danger">@TempData["Error"]</div>
         }
         @if (TempData["Info"] != null)
         {
-            <div class="alert alert-info">@TempData["Info"]</div>
+           // <div class="alert alert-info">@TempData["Info"]</div>
         }
 
         <!-- FILTRO POR FECHAS -->
@@ -161,6 +161,37 @@
   </div>
 </div>
 
+<!-- TOASTS -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div id="successToast" class="toast align-items-center text-bg-success border-0 shadow-lg"
+             role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    @TempData["SuccessMessage"]
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+
+    @if (TempData["DeleteMessage"] != null)
+    {
+        <div id="deleteToast" class="toast align-items-center text-bg-danger border-0 shadow-lg"
+             role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    @TempData["DeleteMessage"]
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+</div>
+
 @section Scripts {
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -183,5 +214,19 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var successEl = document.getElementById('successToast');
+        if (successEl) {
+            new bootstrap.Toast(successEl, { delay: 4000 }).show();
+        }
+
+        var deleteEl = document.getElementById('deleteToast');
+        if (deleteEl) {
+            new bootstrap.Toast(deleteEl, { delay: 4000 }).show();
+        }
+    });
 </script>
 }

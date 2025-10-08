@@ -14,5 +14,6 @@ namespace ProyectoInmobiliaria.Models
         IList<Inmueble> ObtenerLista(int paginaNro, int tamPag);
         int ObtenerCantidad();
         IList<Inmueble> ObtenerDisponiblesPorFechas(DateOnly fechaInicio, DateOnly fechaFin);
+        public bool TieneContratos(int idInmueble);
     }
 }

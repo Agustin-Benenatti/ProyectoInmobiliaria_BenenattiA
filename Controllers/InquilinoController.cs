@@ -12,11 +12,13 @@ namespace ProyectoInmobiliaria.Controllers
     public class InquilinoController : Controller
     {
         private readonly IRepositorioInquilino _repo;
+        private readonly IRepositorioContrato _repoContrato;
 
 
-        public InquilinoController(IRepositorioInquilino repo)
+        public InquilinoController(IRepositorioInquilino repo, IRepositorioContrato repoContrato)
         {
             _repo = repo;
+            _repoContrato = repoContrato;
         }
 
         // GET: Inquilino
@@ -71,6 +73,7 @@ namespace ProyectoInmobiliaria.Controllers
                 return View(i);
 
             _repo.Alta(i);
+            TempData["SuccessMessage"] = "Inquilino creado correctamente.";
 
             return RedirectToAction("Index");
         }
@@ -117,7 +120,14 @@ namespace ProyectoInmobiliaria.Controllers
         [HttpPost, ActionName("EliminarConfirmado")]
         public IActionResult EliminarConfirmado(int id)
         {
+            var contratos = _repoContrato.BuscarPorInquilino(id);
+            if (contratos.Any())
+            {
+                TempData["Error"] = "No se puede eliminar el inquilino porque tiene contratos asociados.";
+                return RedirectToAction(nameof(Index));
+            }
             _repo.Baja(id);
+            TempData["DeleteMessage"] = "Inquilino eliminado correctamente.";
 
             return RedirectToAction("Index");
         }

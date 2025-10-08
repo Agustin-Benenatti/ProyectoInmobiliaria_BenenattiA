@@ -386,7 +386,7 @@ namespace ProyectoInmobiliaria.Models
             }
             return lista;
         }
-        
+
         public IList<Inmueble> ObtenerDisponiblesPorFechas(DateOnly fechaInicio, DateOnly fechaFin)
         {
             var lista = new List<Inmueble>();
@@ -441,6 +441,16 @@ namespace ProyectoInmobiliaria.Models
                 }
             }
             return lista;
+        }
+        public bool TieneContratos(int idInmueble)
+        {
+            using var connection = GetConnection();
+            connection.Open();
+            var sql = @"SELECT COUNT(*) FROM contratos WHERE IdInmueble = @id";
+            using var command = new MySqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@id", idInmueble);
+            int count = Convert.ToInt32(command.ExecuteScalar());
+            return count > 0;
         }
 
 

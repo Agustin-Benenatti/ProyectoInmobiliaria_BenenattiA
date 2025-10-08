@@ -153,7 +153,7 @@ namespace ProyectoInmobiliaria.Controllers
                 ViewBag.Contrato = contrato;
                 return View(pago);
             }
-
+            pago.NroPago = pagosExistentes + 1;
             _repoPagos.Alta(pago);
 
             // Registrar la auditoria

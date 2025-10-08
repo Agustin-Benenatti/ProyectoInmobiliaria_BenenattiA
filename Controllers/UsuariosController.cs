@@ -93,6 +93,7 @@ namespace ProyectoInmobiliaria.Controllers
                 usuario.Avatar = "/images/default-avatar.png";
 
             _repo.Alta(usuario);
+            TempData["SuccessMessage"] = "Usuario creado correctamente.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -179,6 +180,7 @@ namespace ProyectoInmobiliaria.Controllers
         public IActionResult EliminarConfirmado(int id)
         {
             _repo.Baja(id);
+            TempData["DeleteMessage"] = "Usuario eliminado correctamente."; 
             return RedirectToAction(nameof(Index));
         }
     }

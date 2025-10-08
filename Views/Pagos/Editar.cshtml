@@ -18,5 +18,7 @@
     </div>
 
     <button type="submit" class="btn btn-primary">Guardar cambios</button>
-    <a asp-action="Index" asp-route-idContrato="@Model.IdContrato" class="btn btn-secondary">Volver</a>
+    <a asp-controller="Pagos" asp-action="Index" asp-route-contratoId="@Model.IdContrato" class="btn btn-secondary ms-2">
+        Volver
+    </a>
 </form>

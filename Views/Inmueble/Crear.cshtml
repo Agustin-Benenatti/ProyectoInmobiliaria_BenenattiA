@@ -8,7 +8,12 @@
                     <h3 class="mb-0">Crear Nuevo Inmueble</h3>
                 </div>
                 <div class="card-body p-4">
-                    <form asp-action="Crear" method="post">
+                    @if(ViewBag.Mensaje != null)
+                    {
+                        <div class="alert alert-warning">@ViewBag.Mensaje</div>
+                    }
+
+                    <form id="formInmueble" asp-action="Crear" method="post">
                         <div class="mb-3">
                             <label asp-for="Direccion" class="form-label fw-bold"></label>
                             <input asp-for="Direccion" class="form-control" placeholder="Ingrese la dirección" />
@@ -23,10 +28,8 @@
 
                         <div class="mb-3">
                             <label asp-for="Estado" class="form-label fw-bold"></label>
-                            <select asp-for="Estado" class="form-select">
+                            <select asp-for="Estado" class="form-select" asp-items="ViewBag.Estados">
                                 <option value="">Seleccione el estado</option>
-                                <option value="Disponible">Disponible</option>
-                                <option value="No Disponible">No Disponible</option>
                             </select>
                             <span asp-validation-for="Estado" class="text-danger small"></span>
                         </div>
@@ -43,7 +46,6 @@
                             <span asp-validation-for="Superficie" class="text-danger small"></span>
                         </div>
 
-                        <!-- Campos ocultos para Longitud y Latitud con valores por defecto -->
                         <input asp-for="Longitud" type="hidden" value="120" />
                         <input asp-for="Latitud" type="hidden" value="90" />
 
@@ -54,16 +56,25 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="PropietarioId" class="form-label fw-bold">Propietario</label>
-                            <select asp-for="PropietarioId" class="form-select" asp-items="ViewBag.Propietarios">
-                                <option value="">Seleccione un propietario</option>
-                            </select>
-                            <span asp-validation-for="PropietarioId" class="text-danger small"></span>
+                            <label class="form-label fw-bold">DNI Propietario</label>
+                            <div class="input-group">
+                                <input type="text" name="dniPropietario" value="@ViewBag.DniPropietario" class="form-control" placeholder="Ingrese el DNI" />
+                                <button type="submit" name="accion" value="buscar" 
+                                        formaction="@Url.Action("BuscarPropietario", "Inmueble")" 
+                                        formmethod="post" class="btn btn-outline-primary">Buscar</button>
+                            </div>
                         </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Propietario</label>
+                            <input type="text" value="@($"{ViewBag.PropietarioNombre} {ViewBag.PropietarioApellido}")" class="form-control" readonly />
+                        </div>
+
+                        <input type="hidden" id="PropietarioId" name="PropietarioId" value="@ViewBag.PropietarioId" />
 
                         <div class="d-flex justify-content-end mt-4">
                             <a asp-action="Index" class="btn btn-secondary me-2">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <button type="submit" name="accion" value="guardar" class="btn btn-primary">Guardar</button>
                         </div>
                     </form>
                 </div>
@@ -71,3 +82,65 @@
         </div>
     </div>
 </div>
+
+<!-- Modal de advertencia (si no hay propietario) -->
+<div class="modal fade" id="propietarioModal" tabindex="-1" aria-labelledby="propietarioModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="propietarioModalLabel">Atención</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Debe seleccionar un propietario antes de guardar el inmueble.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendido</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de éxito (cuando se guarda correctamente) -->
+<div class="modal fade" id="exitoModal" tabindex="-1" aria-labelledby="exitoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="exitoModalLabel">Éxito</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        @TempData["Exito"]
+      </div>
+      <div class="modal-footer">
+        <a asp-action="Index" class="btn btn-primary">Ir al listado</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("formInmueble").addEventListener("submit", function (event) {
+            const boton = event.submitter?.value; // qué botón disparó el submit
+            if (boton === "guardar") {
+                const propietarioId = document.getElementById("PropietarioId").value;
+                if (!propietarioId) {
+                    event.preventDefault();
+                    var modal = new bootstrap.Modal(document.getElementById("propietarioModal"));
+                    modal.show();
+                }
+            }
+        });
+
+        // Mostrar modal de éxito si hay mensaje en TempData
+        @if (TempData["Exito"] != null)
+        {
+            <text>
+                var modalExito = new bootstrap.Modal(document.getElementById("exitoModal"));
+                modalExito.show();
+            </text>
+        }
+    </script>
+}

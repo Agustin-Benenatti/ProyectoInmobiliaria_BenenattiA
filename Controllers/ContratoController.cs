@@ -112,6 +112,7 @@ namespace ProyectoInmobiliaria.Controllers
                     //Registrar la auditoria
                     var usuarioId = int.Parse(User.Claims.First(c => c.Type == "IdUsuario").Value);
                     RegistrarAuditoria(usuarioId, "Contrato", contrato.IdContrato, "Creación", $"Contrato creado por {User.Identity?.Name}");
+                    TempData["SuccessMessage"] ="Contrato creado correctamente.";
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -205,6 +206,7 @@ namespace ProyectoInmobiliaria.Controllers
             // Registrar la auditoria
             var usuarioId = int.Parse(User.Claims.First(c => c.Type == "IdUsuario").Value);
             RegistrarAuditoria(usuarioId, "Contrato", id, "Eliminación", $"Contrato eliminado por {User.Identity?.Name}");
+            TempData["DeleteMessage"] ="Contrato eliminado correctamente";
             return RedirectToAction(nameof(Index));
         }
 

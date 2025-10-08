@@ -14,11 +14,13 @@ namespace ProyectoInmobiliaria.Controllers
     {
         private readonly IRepositorioInmueble _repo;
         private readonly IRepositorioPropietario _repoPropietario;
+        private readonly IRepositorioContrato _repoContrato;
 
-        public InmuebleController(IRepositorioInmueble repo, IRepositorioPropietario repoPropietario)
+        public InmuebleController(IRepositorioInmueble repo, IRepositorioPropietario repoPropietario, IRepositorioContrato repoContrato)
         {
             _repo = repo;
             _repoPropietario = repoPropietario;
+            _repoContrato = repoContrato;
         }
 
         // GET: Inmueble
@@ -52,7 +54,7 @@ namespace ProyectoInmobiliaria.Controllers
             ViewBag.Pagina = pagina;
             ViewBag.TotalPaginas = (int)Math.Ceiling((double)total / tamPag);
 
-            
+
             ViewBag.Tipos = _repo.ObtenerTodos()
                                 .Select(i => i.TipoInmueble)
                                 .Distinct()
@@ -81,11 +83,43 @@ namespace ProyectoInmobiliaria.Controllers
         // GET: Inmueble/Crear
         public IActionResult Crear()
         {
-            var propietarios = _repoPropietario.ObtenerTodos();
-            ViewBag.Propietarios = new SelectList(propietarios, "PropietarioId", "Nombre");
+            // Inicializar select de estados
+            ViewBag.Estados = new SelectList(new List<string> { "Disponible", "No Disponible" });
             return View();
         }
 
+        // POST: Inmueble/BuscarPropietario
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult BuscarPropietario(Inmueble inmueble, string dniPropietario)
+        {
+            // Inicializar select de estados para que no se borre
+            ViewBag.Estados = new SelectList(new List<string> { "Disponible", "No Disponible" }, inmueble?.Estado);
+
+            if (string.IsNullOrEmpty(dniPropietario))
+            {
+                ViewBag.Mensaje = "Debe ingresar un DNI";
+                return View("Crear", inmueble);
+            }
+
+            var propietario = _repoPropietario.ObtenerPorDni(dniPropietario);
+            if (propietario == null)
+            {
+                ViewBag.Mensaje = "No se encontró propietario con ese DNI";
+                return View("Crear", inmueble);
+            }
+
+            // Guardar datos del propietario en ViewBag
+            ViewBag.PropietarioNombre = propietario.Nombre;
+            ViewBag.PropietarioApellido = propietario.Apellido;
+            ViewBag.PropietarioId = propietario.PropietarioId;
+            ViewBag.DniPropietario = dniPropietario;
+
+            // Retornar la vista con el modelo existente para no perder datos
+            return View("Crear", inmueble);
+        }
+
+        // POST: Inmueble/Crear
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Crear(Inmueble inmueble)
@@ -93,11 +127,13 @@ namespace ProyectoInmobiliaria.Controllers
             if (ModelState.IsValid)
             {
                 _repo.Alta(inmueble);
+                TempData["SuccessMessage"] = "Nuevo inmueble agregado correctamente.";
                 return RedirectToAction(nameof(Index));
             }
 
-            var propietarios = _repoPropietario.ObtenerTodos();
-            ViewBag.Propietarios = new SelectList(propietarios, "PropietarioId", "Nombre", inmueble.PropietarioId);
+            // Inicializar select de estados si vuelve con error de validación
+            ViewBag.Estados = new SelectList(new List<string> { "Disponible", "No Disponible" }, inmueble?.Estado);
+
             return View(inmueble);
         }
 
@@ -137,7 +173,7 @@ namespace ProyectoInmobiliaria.Controllers
         }
 
         // GET: Inmueble/Eliminar
-        [Authorize(Roles ="Administrador")]
+        [Authorize(Roles = "Administrador")]
         public IActionResult Eliminar(int id)
         {
             var inmueble = _repo.ObtenerPorId(id);
@@ -155,11 +191,17 @@ namespace ProyectoInmobiliaria.Controllers
 
         // POST: Inmueble/EliminarConfirmado
         [HttpPost, ActionName("EliminarConfirmado")]
-        [Authorize(Roles ="Administrador")]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public IActionResult EliminarConfirmado(int id)
         {
+            if (_repo.TieneContratos(id))
+            {
+                TempData["Error"] = "No se puede eliminar el inmueble porque tiene contratos asociados.";
+                return RedirectToAction(nameof(Index));
+            }
             _repo.Baja(id);
+            TempData["DeleteMessage"] = "Inmueble eliminado correctamente.";
             return RedirectToAction(nameof(Index));
         }
 

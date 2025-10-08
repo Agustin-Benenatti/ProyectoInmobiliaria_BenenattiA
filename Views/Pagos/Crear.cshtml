@@ -68,7 +68,9 @@ else
         <!-- Botón de Guardar -->
         <div class="mb-3">
             <button type="submit" class="btn btn-success">Guardar</button>
-            <a asp-action="Index" class="btn btn-secondary ms-2">Volver</a>
+            <a asp-controller="Pagos" asp-action="Index" asp-route-contratoId="@contrato.IdContrato" class="btn btn-secondary ms-2">
+                Volver
+            </a>
         </div>
     </form>
 }

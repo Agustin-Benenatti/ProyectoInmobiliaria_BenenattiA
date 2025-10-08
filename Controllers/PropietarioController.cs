@@ -12,11 +12,13 @@ namespace ProyectoInmobiliaria.Controllers
     public class PropietarioController : Controller
     {
         private readonly IRepositorioPropietario _repo;
+        private readonly IRepositorioInmueble _repoInmueble;
 
 
-        public PropietarioController(IRepositorioPropietario repo)
+        public PropietarioController(IRepositorioPropietario repo, IRepositorioInmueble repoInmueble)
         {
             _repo = repo;
+            _repoInmueble = repoInmueble;
         }
 
         // GET: Propietario
@@ -71,6 +73,7 @@ namespace ProyectoInmobiliaria.Controllers
                 return View(p);
 
             _repo.Alta(p);
+            TempData["SuccessMessage"] = "Propietario creado correctamente.";
             return RedirectToAction("Index");
         }
 
@@ -113,7 +116,14 @@ namespace ProyectoInmobiliaria.Controllers
         [HttpPost, ActionName("EliminarConfirmado")]
         public IActionResult EliminarConfirmado(int id)
         {
+             var inmuebles = _repoInmueble.BuscarPorPropietario(id);
+            if (inmuebles.Any())
+            {
+                TempData["Error"] = "No se puede eliminar el propietario porque tiene inmuebles asociados.";
+                return RedirectToAction(nameof(Index));
+            }
             _repo.Baja(id);
+            TempData["DeleteMessage"] = "Propietario eliminado correctamente.";
             return RedirectToAction("Index");
         }
 

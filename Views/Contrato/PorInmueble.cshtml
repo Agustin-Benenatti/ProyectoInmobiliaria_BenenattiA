@@ -1,0 +1,52 @@
+@model IEnumerable<ProyectoInmobiliaria.Models.Contrato>
+
+@{
+    ViewData["Title"] = "Contratos por Inmueble";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-3">@ViewBag.InmuebleInfo</h2>
+
+    <p>
+        <a asp-controller="Inmueble" asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a la lista de Inmuebles
+        </a>
+    </p>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning" role="alert">
+            Este inmueble no tiene contratos asociados.
+        </div>
+    }
+    else
+    {
+        <table class="table table-striped table-hover table-bordered shadow-sm rounded text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Inquilino</th>
+                    <th>Fecha Inicio</th>
+                    <th>Fecha Fin</th>
+                    <th>Precio</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model)
+                {
+                    <tr>
+                        <td>@c.Inquilino?.Nombre @c.Inquilino?.Apellido</td>
+                        <td>@c.FechaInicio.ToString("dd/MM/yyyy")</td>
+                        <td>@c.FechaFin.ToString("dd/MM/yyyy")</td>
+                        <td>@c.Precio.ToString("C0")</td>
+                        <td>
+                            <span class="badge @(c.Estado == "Activo" ? "bg-success" : "bg-secondary")">
+                                @c.Estado
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

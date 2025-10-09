@@ -453,6 +453,42 @@ namespace ProyectoInmobiliaria.Models
             return count > 0;
         }
 
+        public Inmueble? ObtenerPorDireccion(string direccion)
+        {
+            Inmueble? inmueble = null;
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                var sql = @"SELECT IdInmueble, Direccion, TipoInmueble, Estado, Ambientes, Superficie, Longitud, Latitud, Precio, PropietarioId, PortadaUrl
+                            FROM inmuebles
+                            WHERE Direccion = @direccion";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@direccion", direccion);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            inmueble = new Inmueble
+                            {
+                                IdInmueble = reader.GetInt32("IdInmueble"),
+                                Direccion = reader.GetString("Direccion"),
+                                TipoInmueble = reader.IsDBNull(reader.GetOrdinal("TipoInmueble")) ? null : reader.GetString("TipoInmueble"),
+                                Estado = reader.IsDBNull(reader.GetOrdinal("Estado")) ? null : reader.GetString("Estado"),
+                                Ambientes = reader.IsDBNull(reader.GetOrdinal("Ambientes")) ? 0 : reader.GetInt32("Ambientes"),
+                                Superficie = reader.IsDBNull(reader.GetOrdinal("Superficie")) ? 0 : reader.GetInt32("Superficie"),
+                                Longitud = reader.IsDBNull(reader.GetOrdinal("Longitud")) ? 0 : reader.GetInt32("Longitud"),
+                                Latitud = reader.IsDBNull(reader.GetOrdinal("Latitud")) ? 0 : reader.GetInt32("Latitud"),
+                                Precio = reader.IsDBNull(reader.GetOrdinal("Precio")) ? 0 : reader.GetDecimal("Precio"),
+                                PropietarioId = reader.IsDBNull(reader.GetOrdinal("PropietarioId")) ? 0 : reader.GetInt32("PropietarioId"),
+                                PortadaUrl = reader.IsDBNull(reader.GetOrdinal("PortadaUrl")) ? null : reader.GetString("PortadaUrl")
+                            };
+                        }
+                    }
+                }
+            }
+            return inmueble;
+        }
 
     }
 }

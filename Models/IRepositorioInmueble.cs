@@ -15,5 +15,6 @@ namespace ProyectoInmobiliaria.Models
         int ObtenerCantidad();
         IList<Inmueble> ObtenerDisponiblesPorFechas(DateOnly fechaInicio, DateOnly fechaFin);
         public bool TieneContratos(int idInmueble);
+        Inmueble? ObtenerPorDireccion(string direccion);
     }
 }

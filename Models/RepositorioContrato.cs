@@ -36,7 +36,7 @@ namespace ProyectoInmobiliaria.Models
 
                 }
 
-               
+
             }
             return res;
         }
@@ -709,6 +709,52 @@ namespace ProyectoInmobiliaria.Models
 
             return lista;
         }
+        
+       public IList<Contrato> ObtenerPorInmueble(int idInmueble)
+{
+    var lista = new List<Contrato>();
+    using (var connection = GetConnection())
+    {
+        connection.Open();
+        var sql = @"SELECT c.IdContrato, c.FechaInicio, c.FechaFin, c.Precio, c.Estado,
+                           i.Nombre, i.Apellido,
+                           inm.Direccion
+                    FROM contratos c 
+                    -- 👇 LA CORRECCIÓN ESTÁ EN ESTA LÍNEA (c.InquilinoId en lugar de c.IdInquilino)
+                    INNER JOIN inquilinos i ON c.InquilinoId = i.InquilinoId
+                    INNER JOIN inmuebles inm ON c.IdInmueble = inm.IdInmueble
+                    WHERE c.IdInmueble = @idInmueble";
+        
+        using (var command = new MySqlCommand(sql, connection))
+        {
+            command.Parameters.AddWithValue("@idInmueble", idInmueble);
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    lista.Add(new Contrato
+                    {
+                        IdContrato = reader.GetInt32("IdContrato"),
+                        FechaInicio = DateOnly.FromDateTime(reader.GetDateTime("FechaInicio")),
+                        FechaFin = DateOnly.FromDateTime(reader.GetDateTime("FechaFin")),
+                        Precio = reader.GetDecimal("Precio"),
+                        Estado = reader.GetString("Estado"),
+                        Inquilino = new Inquilino
+                        {
+                            Nombre = reader.GetString("Nombre"),
+                            Apellido = reader.GetString("Apellido")
+                        },
+                        Inmueble = new Inmueble
+                        {
+                            Direccion = reader.GetString("Direccion")
+                        }
+                    });
+                }
+            }
+        }
+    }
+    return lista;
+}
         
      
      }

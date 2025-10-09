@@ -11,5 +11,6 @@ namespace ProyectoInmobiliaria.Models
         IList<Inquilino> BuscarPorNombre(string nombre);
         IList<Inquilino> ObtenerLista(int pagNro, int tamPag);
         int ObtenerCantidad();
+        Inquilino? ObtenerPorDni(string dni);
     }
 }

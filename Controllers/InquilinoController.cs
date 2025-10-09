@@ -66,18 +66,38 @@ namespace ProyectoInmobiliaria.Controllers
 
         // POST: Inquilino/Crear
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Crear(Inquilino i)
         {
+            if (!string.IsNullOrEmpty(i.Dni))
+            {
+                var inquilinoExistente = _repo.ObtenerPorDni(i.Dni);
+                if (inquilinoExistente != null)
+                {
+                    ModelState.AddModelError("Dni", "Ya existe un inquilino registrado con ese DNI.");
+                }
+            }
 
-            if (!ModelState.IsValid)
-                return View(i);
+            if (!string.IsNullOrEmpty(i.Email))
+            {
+                var inquilinoExistente = _repo.ObtenerPorEmail(i.Email);
+                if (inquilinoExistente != null)
+                {
+                    ModelState.AddModelError("Email", "Ya existe un inquilino registrado con ese Email.");
+                }
+            }
 
-            _repo.Alta(i);
-            TempData["SuccessMessage"] = "Inquilino creado correctamente.";
+            if (ModelState.IsValid)
+            {
+                _repo.Alta(i);
+                TempData["SuccessMessage"] = "Inquilino creado correctamente.";
+                return RedirectToAction("Index");
+            }
 
-            return RedirectToAction("Index");
+            return View(i);
         }
 
+        
         // GET: Inquilino/Editar/5
         [HttpGet]
         public IActionResult Editar(int id)

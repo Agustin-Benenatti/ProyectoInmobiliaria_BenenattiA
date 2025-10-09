@@ -24,36 +24,50 @@ namespace ProyectoInmobiliaria.Controllers
         }
 
         // GET: Inmueble
-        public IActionResult Index(int pagina = 1, string estado = "", string tipo = "")
+        public IActionResult Index(int pagina = 1, string estado = "", string tipo = "", DateTime? fechaInicio = null, DateTime? fechaFin = null)
         {
             int tamPag = 5;
-            IEnumerable<Inmueble> lista;
-            int total = 0;
+            IEnumerable<Inmueble> inmuebles;
+
+            // Si se proporcionan fechas, filtramos con el nuevo método
+            if (fechaInicio.HasValue && fechaFin.HasValue)
+            {
+                // Convertimos de DateTime (del form) a DateOnly (del repo)
+                DateOnly inicio = DateOnly.FromDateTime(fechaInicio.Value);
+                DateOnly fin = DateOnly.FromDateTime(fechaFin.Value);
+                inmuebles = _repo.ObtenerDisponiblesPorFechas(inicio, fin);
+                ViewBag.MensajeFiltro = $"Mostrando inmuebles disponibles entre {inicio.ToShortDateString()} y {fin.ToShortDateString()}";
+            }
+            else
+            {
+                // Si no, obtenemos todos como antes
+                inmuebles = _repo.ObtenerTodos();
+            }
 
             ViewBag.EstadoSeleccionado = estado;
             ViewBag.TipoSeleccionado = tipo;
+            // Guardamos las fechas para mostrarlas de nuevo en la vista
+            ViewBag.FechaInicio = fechaInicio?.ToString("yyyy-MM-dd");
+            ViewBag.FechaFin = fechaFin?.ToString("yyyy-MM-dd");
 
-            var inmuebles = _repo.ObtenerTodos().AsEnumerable();
-
-            // Filtro por estado
+            // Filtro por estado (se aplica sobre el resultado anterior)
             if (!string.IsNullOrEmpty(estado))
             {
                 inmuebles = inmuebles.Where(i => i.Estado == estado);
             }
 
-            // Filtro por tipo
+            // Filtro por tipo (se aplica sobre el resultado anterior)
             if (!string.IsNullOrEmpty(tipo))
             {
                 inmuebles = inmuebles.Where(i => i.TipoInmueble == tipo);
             }
 
             // Paginación
-            total = inmuebles.Count();
-            lista = inmuebles.Skip((pagina - 1) * tamPag).Take(tamPag).ToList();
+            int total = inmuebles.Count();
+            var lista = inmuebles.Skip((pagina - 1) * tamPag).Take(tamPag).ToList();
 
             ViewBag.Pagina = pagina;
             ViewBag.TotalPaginas = (int)Math.Ceiling((double)total / tamPag);
-
 
             ViewBag.Tipos = _repo.ObtenerTodos()
                                 .Select(i => i.TipoInmueble)
@@ -119,11 +133,19 @@ namespace ProyectoInmobiliaria.Controllers
             return View("Crear", inmueble);
         }
 
-        // POST: Inmueble/Crear
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Crear(Inmueble inmueble)
         {
+            if (!string.IsNullOrEmpty(inmueble.Direccion))
+            {
+                var inmuebleExistente = _repo.ObtenerPorDireccion(inmueble.Direccion);
+                if (inmuebleExistente != null)
+                {
+                    ModelState.AddModelError("Direccion", "Ya existe un inmueble registrado con esa dirección.");
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 _repo.Alta(inmueble);
@@ -131,9 +153,21 @@ namespace ProyectoInmobiliaria.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Inicializar select de estados si vuelve con error de validación
-            ViewBag.Estados = new SelectList(new List<string> { "Disponible", "No Disponible" }, inmueble?.Estado);
+            ViewBag.Estados = new SelectList(new List<string> { "Disponible", "No Disponible" }, inmueble.Estado);
 
+            if (inmueble.PropietarioId.HasValue && inmueble.PropietarioId > 0)
+            {
+                var propietario = _repoPropietario.ObtenerPorId(inmueble.PropietarioId.Value);
+                
+                if (propietario != null)
+                {
+                    ViewBag.PropietarioNombre = propietario.Nombre;
+                    ViewBag.PropietarioApellido = propietario.Apellido;
+                    ViewBag.PropietarioId = propietario.PropietarioId;
+                    ViewBag.DniPropietario = propietario.Dni;
+                }
+            }
+            
             return View(inmueble);
         }
 

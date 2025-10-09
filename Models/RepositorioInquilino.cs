@@ -13,7 +13,7 @@ namespace ProyectoInmobiliaria.Models
         {
 
         }
-        
+
         public int Alta(Inquilino i)
         {
             int res = -1;
@@ -259,6 +259,38 @@ namespace ProyectoInmobiliaria.Models
                 }
             }
             return lista;
+        }
+        
+        public Inquilino? ObtenerPorDni(string dni)
+        {
+            Inquilino? inquilino = null;
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                var sql = @"SELECT InquilinoId, Nombre, Apellido, Dni, Email, Telefono
+                            FROM Inquilinos
+                            WHERE Dni = @dni";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@dni", dni);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            inquilino = new Inquilino
+                            {
+                                InquilinoId = reader.GetInt32("InquilinoId"),
+                                Nombre = reader.GetString("Nombre"),
+                                Apellido = reader.GetString("Apellido"),
+                                Dni = reader.GetString("Dni"),
+                                Email = reader.GetString("Email"),
+                                Telefono = reader.GetString("Telefono")
+                            };
+                        }
+                    }
+                }
+            }
+            return inquilino;
         }
     }
 

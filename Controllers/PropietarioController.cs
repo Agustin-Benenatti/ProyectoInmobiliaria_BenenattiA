@@ -24,7 +24,7 @@ namespace ProyectoInmobiliaria.Controllers
         // GET: Propietario
         public IActionResult Index(int pagina = 1)
         {
-            int tamPag = 5;
+            int tamPag = 3;
             IEnumerable<Propietario> lista;
 
             if (pagina <= 0)
@@ -64,19 +64,38 @@ namespace ProyectoInmobiliaria.Controllers
             return View();
         }
 
-        // POST: Propietario/Crear
+         // POST: Propietario/Crear
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Crear(Propietario p)
         {
+            if (!string.IsNullOrEmpty(p.Dni))
+            {
+                var propietarioExistente = _repo.ObtenerPorDni(p.Dni);
+                if (propietarioExistente != null)
+                {
+                    ModelState.AddModelError("Dni", "Ya existe un propietario registrado con ese DNI.");
+                }
+            }
 
-            if (!ModelState.IsValid)
-                return View(p);
+            if (!string.IsNullOrEmpty(p.Email))
+            {
+                var propietarioExistente = _repo.ObtenerPorEmail(p.Email);
+                if (propietarioExistente != null)
+                {
+                    ModelState.AddModelError("Email", "Ya existe un propietario registrado con ese Email.");
+                }
+            }
 
-            _repo.Alta(p);
-            TempData["SuccessMessage"] = "Propietario creado correctamente.";
-            return RedirectToAction("Index");
+            if (ModelState.IsValid)
+            {
+                _repo.Alta(p);
+                TempData["SuccessMessage"] = "Propietario creado correctamente.";
+                return RedirectToAction("Index");
+            }
+
+            return View(p);
         }
-
         // GET: Propietario/Editar/5
         [HttpGet]
         public IActionResult Editar(int id)

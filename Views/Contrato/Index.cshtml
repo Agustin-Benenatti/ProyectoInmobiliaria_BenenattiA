@@ -10,56 +10,67 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Lista de Contratos</h2>
-        <a asp-action="Crear" class="btn btn-success">Nuevo Contrato</a>
+        <a asp-action="Crear" class="btn btn-success">
+            <i class="bi bi-plus-lg me-1"></i> Nuevo Contrato
+        </a>
     </div>
 
-    <!-- FILTROS -->
-    <div class="mb-4">
-        @if (TempData["Error"] != null)
-        {
-           // <div class="alert alert-danger">@TempData["Error"]</div>
-        }
-        @if (TempData["Info"] != null)
-        {
-           // <div class="alert alert-info">@TempData["Info"]</div>
-        }
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <i class="bi bi-funnel-fill me-2"></i><strong>Filtros de Búsqueda</strong>
+        </div>
+        <div class="card-body">
+            <form method="get">
+                <div class="row g-3 align-items-end">
 
-        <!-- FILTRO POR FECHAS -->
-        <form asp-action="Vigentes" method="get" class="row g-3 align-items-end mb-3">
-            <div class="col-md-4">
-                <label for="desde" class="form-label">Fecha Desde</label>
-                <input type="date" id="desde" name="desde" class="form-control" value="@ViewBag.Desde" />
-            </div>
+                    <div class="col-lg-5 col-md-12">
+                        <label class="form-label">Contratos vigentes en un período</label>
+                        <div class="input-group">
+                            <input type="date" name="desde" class="form-control" value="@ViewBag.Desde" title="Fecha Desde">
+                            <span class="input-group-text">-</span>
+                            <input type="date" name="hasta" class="form-control" value="@ViewBag.Hasta" title="Fecha Hasta">
+                            <button type="submit" class="btn btn-primary" asp-action="Vigentes" title="Filtrar por fechas">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
 
-            <div class="col-md-4">
-                <label for="hasta" class="form-label">Fecha Hasta</label>
-                <input type="date" id="hasta" name="hasta" class="form-control" value="@ViewBag.Hasta" />
-            </div>
+                    <div class="col-lg-4 col-md-12">
+                        <label class="form-label">Contratos próximos a vencer</label>
+                        <div class="input-group">
+                            <select name="dias" class="form-select">
+                                <option value="">Seleccionar plazo...</option>
+                                <option value="30" selected="@(ViewBag.Dias == 30)">En 30 días</option>
+                                <option value="60" selected="@(ViewBag.Dias == 60)">En 60 días</option>
+                                <option value="90" selected="@(ViewBag.Dias == 90)">En 90 días</option>
+                            </select>
+                            <button type="submit" class="btn btn-warning" asp-action="PorPlazo" title="Ver próximos vencimientos">
+                                <i class="bi bi-alarm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-12">
+                        <div class="d-grid">
+                             <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-eraser me-1"></i> Limpiar Filtros
+                            </a>
+                        </div>
+                    </div>
 
-            <div class="col-md-4">
-                <button type="submit" class="btn btn-primary">Filtrar</button>
-                <a asp-action="Index" class="btn btn-secondary">Limpiar</a>
-            </div>
-        </form>
-
-        <!-- FILTRO POR VENCIMIENTOS -->
-        <form asp-action="PorPlazo" method="get" class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label for="dias" class="form-label">Próximos Vencimientos</label>
-                <select id="dias" name="dias" class="form-select"
-                        asp-items="new SelectList(new[]{30,60,90}, ViewBag.Dias)">
-                    <option value="">Seleccione un plazo (30, 60 o 90 días)</option>
-                </select>
-            </div>
-
-            <div class="col-md-4">
-                <button type="submit" class="btn btn-warning">Ver Próximos Vencimientos</button>
-            </div>
-        </form>
-
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- TABLA DE CONTRATOS -->
+    @if (TempData["InfoMessage"] != null)
+    {
+        <div class="alert alert-info shadow-sm" role="alert">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            @TempData["InfoMessage"]
+        </div>
+    }
+
     <table class="table table-striped table-hover table-bordered shadow-sm rounded text-center align-middle">
         <thead class="table-dark">
             <tr>
@@ -73,53 +84,63 @@
             </tr>
         </thead>
         <tbody>
-        @foreach (var c in Model)
+        @if (!Model.Any())
         {
-            var pagosRegistrados = pagosPorContrato.ContainsKey(c.IdContrato) ? pagosPorContrato[c.IdContrato] : 0;
-            bool contratoFinalizado = c.Estado == "Inactivo" || c.Estado == "Finalizado";
-
             <tr>
-                <td>@c.FechaInicio.ToString("dd/MM/yyyy")</td>
-                <td>@c.FechaFin.ToString("dd/MM/yyyy")</td>
-                <td>@c.Precio.ToString("C0")</td>
-                <td>
-                    <span class="badge @(c.Estado == "Activo" ? "bg-success" : "bg-secondary")">
-                        @c.Estado
-                    </span>
-                </td>
-                <td>@c.Inquilino?.Nombre @c.Inquilino?.Apellido</td>
-                <td>@c.Inmueble?.Direccion</td>
-                <td>
-                    <div class="btn-group flex-wrap" role="group">
-                        <a asp-action="Detalle" asp-route-id="@c.IdContrato" class="btn btn-sm btn-info text-white">Ver</a>
-                        <a asp-action="Editar" asp-route-id="@c.IdContrato" class="btn btn-sm btn-warning text-dark">Editar</a>
-                        <a asp-action="Eliminar" asp-route-id="@c.IdContrato" class="btn btn-sm btn-danger">Eliminar</a>
-                        <a asp-controller="Pagos" asp-action="Index" asp-route-contratoId="@c.IdContrato" class="btn btn-sm btn-success">Pagos</a>
-
-                        <button type="button"
-                                class="btn btn-sm btn-danger btn-terminar"
-                                data-contrato="@c.IdContrato"
-                                data-pagos="@pagosRegistrados"
-                                @(contratoFinalizado ? "disabled" : "")>
-                            Terminar Anticipadamente
-                        </button>
-
-                        @if (pagosRegistrados >= 6 && contratoFinalizado)
-                        {
-                            <a asp-action="Renovar" asp-route-id="@c.IdContrato" class="btn btn-sm btn-primary">Renovar</a>
-                        }
-                        else
-                        {
-                            <button class="btn btn-sm btn-primary" disabled>Renovar</button>
-                        }
-                    </div>
+                <td colspan="7" class="text-center py-4 text-muted">
+                    No se encontraron contratos para mostrar.
                 </td>
             </tr>
+        }
+        else
+        {
+            @foreach (var c in Model)
+            {
+                var pagosRegistrados = pagosPorContrato.ContainsKey(c.IdContrato) ? pagosPorContrato[c.IdContrato] : 0;
+                bool contratoFinalizado = c.Estado == "Inactivo" || c.Estado == "Finalizado";
+
+                <tr>
+                    <td>@c.FechaInicio.ToString("dd/MM/yyyy")</td>
+                    <td>@c.FechaFin.ToString("dd/MM/yyyy")</td>
+                    <td>@c.Precio.ToString("C0")</td>
+                    <td>
+                        <span class="badge @(c.Estado == "Activo" ? "bg-success" : "bg-secondary")">
+                            @c.Estado
+                        </span>
+                    </td>
+                    <td>@c.Inquilino?.Nombre @c.Inquilino?.Apellido</td>
+                    <td>@c.Inmueble?.Direccion</td>
+                    <td>
+                        <div class="btn-group flex-wrap" role="group">
+                            <a asp-action="Detalle" asp-route-id="@c.IdContrato" class="btn btn-sm btn-info text-white">Ver</a>
+                            <a asp-action="Editar" asp-route-id="@c.IdContrato" class="btn btn-sm btn-warning text-dark">Editar</a>
+                            <a asp-action="Eliminar" asp-route-id="@c.IdContrato" class="btn btn-sm btn-danger">Eliminar</a>
+                            <a asp-controller="Pagos" asp-action="Index" asp-route-contratoId="@c.IdContrato" class="btn btn-sm btn-success">Pagos</a>
+
+                            <button type="button"
+                                    class="btn btn-sm btn-danger btn-terminar"
+                                    data-contrato="@c.IdContrato"
+                                    data-pagos="@pagosRegistrados"
+                                    @(contratoFinalizado ? "disabled" : "")>
+                                Terminar Anticipadamente
+                            </button>
+
+                            @if (pagosRegistrados >= 6 && contratoFinalizado)
+                            {
+                                <a asp-action="Renovar" asp-route-id="@c.IdContrato" class="btn btn-sm btn-primary">Renovar</a>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-primary" disabled>Renovar</button>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
         }
         </tbody>
     </table>
 
-    <!-- PAGINADO -->
     @if (totalPaginas > 1)
     {
         <nav aria-label="Page navigation">
@@ -143,7 +164,6 @@
     }
 </div>
 
-<!-- MODAL PAGOS -->
 <div class="modal fade" id="modalNoPago" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -161,7 +181,6 @@
   </div>
 </div>
 
-<!-- TOASTS -->
 <div class="toast-container position-fixed top-0 end-0 p-3">
     @if (TempData["SuccessMessage"] != null)
     {

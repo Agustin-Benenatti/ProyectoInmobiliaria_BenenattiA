@@ -70,7 +70,7 @@ namespace ProyectoInmobiliaria.Controllers
             return View(contrato);
         }
 
-        // GET: Contrato/Crear
+         // GET: Contrato/Crear
         public IActionResult Crear()
         {
             ViewBag.Inquilinos = new SelectList(
@@ -80,8 +80,9 @@ namespace ProyectoInmobiliaria.Controllers
                 "NombreCompleto"
             );
 
+            // MODIFICADO: Solo muestra inmuebles disponibles
             ViewBag.Inmuebles = new SelectList(
-                _repoInmueble.ObtenerTodos(),
+                _repoInmueble.ObtenerDisponibles(),
                 "IdInmueble",
                 "Direccion"
             );
@@ -94,6 +95,13 @@ namespace ProyectoInmobiliaria.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Crear(Contrato contrato)
         {
+            // MODIFICADO: Se añade la validación de disponibilidad del inmueble
+            var inmuebleSeleccionado = _repoInmueble.ObtenerPorId(contrato.IdInmueble);
+            if (inmuebleSeleccionado != null && inmuebleSeleccionado.Estado != "Disponible")
+            {
+                ModelState.AddModelError("IdInmueble", "El inmueble seleccionado ya no se encuentra disponible.");
+            }
+
             if (ModelState.IsValid)
             {
                 if (contrato.FechaInicio != DateOnly.MinValue)
@@ -112,7 +120,7 @@ namespace ProyectoInmobiliaria.Controllers
                     //Registrar la auditoria
                     var usuarioId = int.Parse(User.Claims.First(c => c.Type == "IdUsuario").Value);
                     RegistrarAuditoria(usuarioId, "Contrato", contrato.IdContrato, "Creación", $"Contrato creado por {User.Identity?.Name}");
-                    TempData["SuccessMessage"] ="Contrato creado correctamente.";
+                    TempData["SuccessMessage"] = "Contrato creado correctamente.";
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -126,8 +134,9 @@ namespace ProyectoInmobiliaria.Controllers
                 contrato.InquilinoId
             );
 
+            // MODIFICADO: Recarga la lista solo con inmuebles disponibles
             ViewBag.Inmuebles = new SelectList(
-                _repoInmueble.ObtenerTodos(),
+                _repoInmueble.ObtenerDisponibles(),
                 "IdInmueble",
                 "Direccion",
                 contrato.IdInmueble
@@ -206,7 +215,7 @@ namespace ProyectoInmobiliaria.Controllers
             // Registrar la auditoria
             var usuarioId = int.Parse(User.Claims.First(c => c.Type == "IdUsuario").Value);
             RegistrarAuditoria(usuarioId, "Contrato", id, "Eliminación", $"Contrato eliminado por {User.Identity?.Name}");
-            TempData["DeleteMessage"] ="Contrato eliminado correctamente";
+            TempData["DeleteMessage"] = "Contrato eliminado correctamente";
             return RedirectToAction(nameof(Index));
         }
 
@@ -410,18 +419,30 @@ namespace ProyectoInmobiliaria.Controllers
                     Entidad = entidad,
                     EntidadId = entidadId,
                     Accion = accion,
-                    UsuarioId = usuarioId, 
+                    UsuarioId = usuarioId,
                     Fecha = DateTime.Now,
                     Detalle = detalle
                 });
             }
             catch (Exception ex)
             {
-                
+
                 Console.WriteLine("Error al registrar auditoría: " + ex.Message);
             }
         }
         
+        public IActionResult PorInmueble(int id)
+        {
+            // Obtenemos la información del inmueble para mostrar su dirección en el título
+            var inmueble = _repoInmueble.ObtenerPorId(id);
+            if (inmueble != null)
+            {
+                ViewBag.InmuebleInfo = $"Contratos del Inmueble: {inmueble.Direccion}";
+            }
+
+            var lista = _repo.ObtenerPorInmueble(id);
+            return View(lista);
+        }
      }
 
  }
